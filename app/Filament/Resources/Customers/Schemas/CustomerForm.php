@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Filament\Resources\Customers\Customers\Schemas;
+namespace App\Filament\Resources\Customers\Schemas;
 
 use App\CustomerType;
 use App\RiskLevel;

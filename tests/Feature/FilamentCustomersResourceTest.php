@@ -1,9 +1,9 @@
 <?php
 
-use App\Filament\Resources\Customers\Customers\Pages\CreateCustomer;
-use App\Filament\Resources\Customers\Customers\Pages\EditCustomer;
-use App\Filament\Resources\Customers\Customers\Pages\ListCustomers;
-use App\Filament\Resources\Customers\Customers\Pages\ViewCustomer;
+use App\Filament\Resources\Customers\Pages\CreateCustomer;
+use App\Filament\Resources\Customers\Pages\EditCustomer;
+use App\Filament\Resources\Customers\Pages\ListCustomers;
+use App\Filament\Resources\Customers\Pages\ViewCustomer;
 use App\Models\Customer;
 use App\Models\User;
 use Filament\Facades\Filament;

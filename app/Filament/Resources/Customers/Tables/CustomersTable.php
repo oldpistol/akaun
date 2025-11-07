@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Filament\Resources\Customers\Customers\Tables;
+namespace App\Filament\Resources\Customers\Tables;
 
 use App\CustomerType;
 use App\RiskLevel;
