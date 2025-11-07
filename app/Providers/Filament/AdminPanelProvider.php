@@ -28,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->spa(hasPrefetching: true)
-            ->font('Plus Jakarta Sans')
+            ->font('Inter')
             ->colors([
                 'primary' => Color::Green,
             ])
