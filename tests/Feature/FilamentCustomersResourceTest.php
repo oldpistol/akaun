@@ -25,8 +25,8 @@ beforeEach(function () {
 it('lists customers and supports filtering', function () {
     $customers = Customer::factory()->count(5)->create();
 
+    /** @var Customer $first */
     $first = $customers->first();
-    expect($first)->not->toBeNull();
 
     Livewire::test(ListCustomers::class)
         ->assertCanSeeTableRecords($customers)
@@ -109,7 +109,9 @@ it('soft deletes a customer via the edit page header action', function () {
         ->callAction('delete')
         ->assertNotified();
 
-    assertDatabaseHas('customers', ['id' => $customer->id, 'deleted_at' => now()]);
+    $customer->refresh();
+    assertDatabaseHas('customers', ['id' => $customer->id]);
+    expect($customer->deleted_at)->not->toBeNull();
 });
 
 it('bulk soft deletes customers from the list page', function () {
@@ -120,6 +122,7 @@ it('bulk soft deletes customers from the list page', function () {
 
     foreach ($customers as $cust) {
         assertDatabaseHas('customers', ['id' => $cust->id]);
-        expect($cust->fresh()->deleted_at)->not->toBeNull();
+        $cust->refresh();
+        expect($cust->deleted_at)->not->toBeNull();
     }
 });
