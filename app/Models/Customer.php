@@ -48,11 +48,17 @@ class Customer extends Model
         ];
     }
 
+    /**
+     * @return MorphMany<Address, covariant self>
+     */
     public function addresses(): MorphMany
     {
         return $this->morphMany(Address::class, 'addressable');
     }
 
+    /**
+     * @return MorphOne<Address, covariant self>
+     */
     public function primaryAddress(): MorphOne
     {
         return $this->morphOne(Address::class, 'addressable')->where('is_primary', true);

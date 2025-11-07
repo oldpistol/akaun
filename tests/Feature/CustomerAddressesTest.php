@@ -24,6 +24,7 @@ it('auto sets first address primary when none provided', function () {
     // Factory already creates a primary, so remove it and add a non-primary to test auto behavior.
     $customer->addresses()->delete();
     $state = State::query()->first() ?? State::factory()->create();
+    /** @var Address $addr */
     $addr = $customer->addresses()->create([
         'line1' => 'Line 1',
         'city' => 'City',
@@ -39,9 +40,11 @@ it('auto sets first address primary when none provided', function () {
 
 it('enforces single primary address after adding a new primary', function () {
     $customer = Customer::factory()->create();
+    /** @var int|null $initialPrimaryId */
     $initialPrimaryId = $customer->primaryAddress?->id;
     $state = State::query()->first() ?? State::factory()->create();
 
+    /** @var Address $second */
     $second = $customer->addresses()->create([
         'line1' => 'Second',
         'city' => 'City2',
@@ -55,7 +58,10 @@ it('enforces single primary address after adding a new primary', function () {
 
     $primaries = $customer->addresses()->where('is_primary', true)->pluck('id');
     expect($primaries)->toHaveCount(1)->and($primaries->first())->toBe($second->id);
-    expect(Address::find($initialPrimaryId)?->is_primary)->toBeFalse();
+    
+    /** @var Address|null $initialAddress */
+    $initialAddress = Address::find($initialPrimaryId);
+    expect($initialAddress?->is_primary)->toBeFalse();
 });
 
 it('filters customers by primary address state', function () {

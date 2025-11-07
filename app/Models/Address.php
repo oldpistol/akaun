@@ -30,12 +30,17 @@ class Address extends Model
         ];
     }
 
-    /** @phpstan-return MorphTo<\Illuminate\Database\Eloquent\Model, Address> */
+    /**
+     * @return MorphTo<Model, covariant self>
+     */
     public function addressable(): MorphTo
     {
         return $this->morphTo();
     }
 
+    /**
+     * @return BelongsTo<State, covariant self>
+     */
     public function state(): BelongsTo
     {
         return $this->belongsTo(State::class);
@@ -59,6 +64,7 @@ class Address extends Model
 
             $hasPrimary = $addressable->addresses()->where('is_primary', true)->exists();
             if (! $hasPrimary) {
+                /** @var Address|null $first */
                 $first = $addressable->addresses()->orderBy('id')->first();
                 if ($first && ! $first->is_primary) {
                     $first->forceFill(['is_primary' => true])->save();
