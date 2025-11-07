@@ -9,6 +9,11 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class HighRiskCustomersWidget extends StatsOverviewWidget
 {
+    protected int|string|array $columnSpan = [
+        'md' => 2,
+        'xl' => 3,
+    ];
+
     protected function getStats(): array
     {
         $highRiskCount = Customer::where('risk_level', RiskLevel::High)->count();

@@ -8,6 +8,11 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class TotalCreditLimitWidget extends StatsOverviewWidget
 {
+    protected int|string|array $columnSpan = [
+        'md' => 2,
+        'xl' => 3,
+    ];
+
     protected function getStats(): array
     {
         $totalCreditLimit = (float) Customer::sum('credit_limit');
