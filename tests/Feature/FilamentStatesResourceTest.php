@@ -138,3 +138,89 @@ it('validates required fields when creating a state', function () {
             'name' => 'required',
         ]);
 });
+
+it('deletes a state via the edit page header action', function () {
+    $state = State::factory()->create();
+
+    Livewire::test(EditState::class, ['record' => $state->getKey()])
+        ->callAction('delete')
+        ->assertNotified();
+
+    $state->refresh();
+    assertDatabaseHas('states', ['id' => $state->id]);
+    expect($state->deleted_at)->not->toBeNull();
+});
+
+it('validates unique code when editing a state', function () {
+    $existingState = State::factory()->create(['code' => 'EXISTING']);
+    $stateToEdit = State::factory()->create(['code' => 'EDIT']);
+
+    Livewire::test(EditState::class, ['record' => $stateToEdit->getKey()])
+        ->fillForm(['code' => 'EXISTING'])
+        ->call('save')
+        ->assertHasFormErrors(['code' => 'unique']);
+});
+
+it('allows keeping the same code when editing a state', function () {
+    $state = State::factory()->create([
+        'code' => 'SAME',
+        'name' => 'Same State',
+    ]);
+
+    Livewire::test(EditState::class, ['record' => $state->getKey()])
+        ->fillForm([
+            'code' => 'SAME',
+            'name' => 'Updated Name',
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors()
+        ->assertNotified();
+
+    expect($state->refresh()->name)->toBe('Updated Name');
+});
+
+it('validates max length for code and name fields', function () {
+    Livewire::test(CreateState::class)
+        ->fillForm([
+            'code' => str_repeat('A', 31), // Exceeds 30 char limit
+            'name' => str_repeat('B', 61), // Exceeds 60 char limit
+        ])
+        ->call('create')
+        ->assertHasFormErrors([
+            'code' => 'max',
+            'name' => 'max',
+        ]);
+});
+
+it('searches states by code', function () {
+    $states = State::factory()->count(5)->create();
+
+    /** @var State $first */
+    $first = $states->first();
+
+    Livewire::test(ListStates::class)
+        ->assertCanSeeTableRecords($states)
+        ->searchTable($first->code)
+        ->assertCanSeeTableRecords($states->take(1))
+        ->assertCanNotSeeTableRecords($states->skip(1));
+});
+
+it('sorts states by name in ascending order', function () {
+    State::factory()->create(['name' => 'Zebra State']);
+    State::factory()->create(['name' => 'Alpha State']);
+    State::factory()->create(['name' => 'Middle State']);
+
+    Livewire::test(ListStates::class)
+        ->sortTable('name')
+        ->assertCanSeeTableRecords(State::query()->orderBy('name')->get(), inOrder: true);
+});
+
+it('sorts states by code in descending order', function () {
+    State::factory()->create(['code' => 'AAA']);
+    State::factory()->create(['code' => 'ZZZ']);
+    State::factory()->create(['code' => 'MMM']);
+
+    Livewire::test(ListStates::class)
+        ->sortTable('code', 'desc')
+        ->assertCanSeeTableRecords(State::query()->orderBy('code', 'desc')->get(), inOrder: true);
+});
