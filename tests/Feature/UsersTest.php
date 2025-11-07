@@ -4,6 +4,8 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 
+use function Pest\Laravel\assertDatabaseHas;
+
 uses(RefreshDatabase::class);
 
 it('runs user migrations and creates a user', function () {
@@ -24,7 +26,7 @@ it('runs user migrations and creates a user', function () {
     expect($user->exists)->toBeTrue();
 
     // Assert database has the record.
-    $this->assertDatabaseHas('users', [
+    assertDatabaseHas('users', [
         'email' => 'testuser@example.com',
         'name' => 'Test User',
     ]);
@@ -36,8 +38,7 @@ it('runs user migrations and creates a user', function () {
 it('enforces unique email constraint', function () {
     User::factory()->create(['email' => 'duplicate@example.com']);
 
-    $this->expectException(\Illuminate\Database\QueryException::class);
-
     // Attempt to violate unique constraint.
-    User::factory()->create(['email' => 'duplicate@example.com']);
+    expect(fn () => User::factory()->create(['email' => 'duplicate@example.com']))
+        ->toThrow(\Illuminate\Database\QueryException::class);
 });

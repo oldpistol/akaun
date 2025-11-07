@@ -9,12 +9,16 @@ use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\assertDatabaseHas;
+use function Pest\Laravel\assertDatabaseMissing;
+
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
     Filament::setCurrentPanel('admin');
 
-    $this->actingAs(User::factory()->create());
+    actingAs(User::factory()->create());
 });
 
 it('lists users and supports searching', function () {
@@ -43,7 +47,7 @@ it('creates a user from the create page', function () {
         ->assertNotified()
         ->assertRedirect();
 
-    $this->assertDatabaseHas('users', [
+    assertDatabaseHas('users', [
         'name' => 'Filament Create',
         'email' => $email,
     ]);
@@ -88,7 +92,7 @@ it('deletes a user via the edit page header action', function () {
         ->callAction('delete')
         ->assertNotified();
 
-    $this->assertDatabaseMissing('users', ['id' => $user->id]);
+    assertDatabaseMissing('users', ['id' => $user->id]);
 });
 
 it('bulk deletes users from the list page', function () {
@@ -98,6 +102,6 @@ it('bulk deletes users from the list page', function () {
         ->callTableBulkAction('delete', $users);
 
     foreach ($users as $user) {
-        $this->assertDatabaseMissing('users', ['id' => $user->id]);
+        assertDatabaseMissing('users', ['id' => $user->id]);
     }
 });
