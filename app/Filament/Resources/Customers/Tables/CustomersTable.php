@@ -13,6 +13,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Support\Enums\Size;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -51,10 +52,10 @@ class CustomersTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make(),
-                RestoreAction::make(),
+                ViewAction::make()->size(Size::Small),
+                EditAction::make()->size(Size::Small),
+                DeleteAction::make()->size(Size::Small),
+                RestoreAction::make()->size(Size::Small),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
