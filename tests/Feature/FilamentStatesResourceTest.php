@@ -93,7 +93,9 @@ it('deletes a state via the view page header action', function () {
         ->callAction('delete')
         ->assertNotified();
 
-    expect(State::query()->where('id', $state->id)->exists())->toBeFalse();
+    $state->refresh();
+    assertDatabaseHas('states', ['id' => $state->id]);
+    expect($state->deleted_at)->not->toBeNull();
 });
 
 it('bulk deletes states from the list page', function () {
@@ -103,7 +105,9 @@ it('bulk deletes states from the list page', function () {
         ->callTableBulkAction('delete', $states);
 
     foreach ($states as $state) {
-        expect(State::query()->where('id', $state->id)->exists())->toBeFalse();
+        assertDatabaseHas('states', ['id' => $state->id]);
+        $state->refresh();
+        expect($state->deleted_at)->not->toBeNull();
     }
 });
 
