@@ -2,10 +2,7 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Widgets\ActiveCustomersWidget;
-use App\Filament\Widgets\HighRiskCustomersWidget;
-use App\Filament\Widgets\TotalCreditLimitWidget;
-use App\Filament\Widgets\TotalCustomersWidget;
+use App\Filament\Widgets\CustomerStatsOverview;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -40,10 +37,7 @@ class AdminPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             ->widgets([
-                TotalCustomersWidget::class,
-                ActiveCustomersWidget::class,
-                TotalCreditLimitWidget::class,
-                HighRiskCustomersWidget::class,
+                CustomerStatsOverview::class,
             ])
             ->middleware([
                 EncryptCookies::class,
