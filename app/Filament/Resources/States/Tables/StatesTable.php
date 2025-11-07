@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources\States\Tables;
 
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Support\Enums\Size;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -37,8 +37,10 @@ class StatesTable
                 //
             ])
             ->recordActions([
-                ViewAction::make()->size(Size::Small),
-                EditAction::make()->size(Size::Small),
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make(),
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

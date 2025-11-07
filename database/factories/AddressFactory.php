@@ -4,12 +4,15 @@ namespace Database\Factories;
 
 use App\Models\State;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Infrastructure\Customer\Persistence\Eloquent\AddressModel;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Address>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\Infrastructure\Customer\Persistence\Eloquent\AddressModel>
  */
 class AddressFactory extends Factory
 {
+    protected $model = AddressModel::class;
+
     /**
      * Define the model's default state.
      *

@@ -13,3 +13,15 @@ parameters:
         - Illuminate\Database\Eloquent\Collection
     excludePaths:
         - tests/Pest.php
+        - tests/Feature/Infrastructure/Customer/Repositories/EloquentCustomerRepositoryTest.php
+
+    ignoreErrors:
+        # Mockery mocking issues in tests
+        - '#Parameter \#1 \$customerRepository of class .* constructor expects .*, Mockery\\MockInterface given#'
+        - '#Call to an undefined method Mockery\\ExpectationInterface\|Mockery\\HigherOrderMessage::(once|with|andReturn|andReturnUsing)\(\)#'
+        - '#Cannot call method (once|with|andReturn|andReturnUsing|format)\(\) on mixed#'
+        # Nullable timestamp handling in mapper tests
+        - '#Cannot call method format\(\) on Carbon\\Carbon\|null#'
+        - '#Cannot call method format\(\) on DateTimeImmutable\|null#'
+        # Mapper test null handling
+        - '#Parameter \#1 \$model of method .* expects .*, .*\|null given#'

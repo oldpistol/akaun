@@ -2,15 +2,17 @@
 
 namespace Database\Factories;
 
-use App\Models\Customer;
 use App\Models\State;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Infrastructure\Customer\Persistence\Eloquent\CustomerModel;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Customer>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\Infrastructure\Customer\Persistence\Eloquent\CustomerModel>
  */
 class CustomerFactory extends Factory
 {
+    protected $model = CustomerModel::class;
+
     /**
      * Define the model's default state.
      *
@@ -40,7 +42,7 @@ class CustomerFactory extends Factory
 
     public function configure(): static
     {
-        return $this->afterCreating(function (Customer $customer): void {
+        return $this->afterCreating(function (CustomerModel $customer): void {
             $state = State::query()->inRandomOrder()->first() ?? State::factory()->create();
 
             $customer->addresses()->create([

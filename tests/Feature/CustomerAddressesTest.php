@@ -1,12 +1,12 @@
 <?php
 
 use App\Filament\Resources\Customers\Pages\ListCustomers;
-use App\Models\Address;
-use App\Models\Customer;
 use App\Models\State;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Infrastructure\Customer\Persistence\Eloquent\AddressModel;
+use Infrastructure\Customer\Persistence\Eloquent\CustomerModel;
 use Livewire\Livewire;
 
 use function Pest\Laravel\actingAs;
@@ -19,12 +19,12 @@ beforeEach(function () {
 });
 
 it('auto sets first address primary when none provided', function () {
-    $customer = Customer::factory()->create();
+    $customer = CustomerModel::factory()->create();
 
     // Factory already creates a primary, so remove it and add a non-primary to test auto behavior.
     $customer->addresses()->delete();
     $state = State::query()->first() ?? State::factory()->create();
-    /** @var Address $addr */
+    /** @var AddressModel $addr */
     $addr = $customer->addresses()->create([
         'line1' => 'Line 1',
         'city' => 'City',
@@ -39,12 +39,12 @@ it('auto sets first address primary when none provided', function () {
 });
 
 it('enforces single primary address after adding a new primary', function () {
-    $customer = Customer::factory()->create();
+    $customer = CustomerModel::factory()->create();
     /** @var int|null $initialPrimaryId */
     $initialPrimaryId = $customer->primaryAddress?->id;
     $state = State::query()->first() ?? State::factory()->create();
 
-    /** @var Address $second */
+    /** @var AddressModel $second */
     $second = $customer->addresses()->create([
         'line1' => 'Second',
         'city' => 'City2',
@@ -59,8 +59,8 @@ it('enforces single primary address after adding a new primary', function () {
     $primaries = $customer->addresses()->where('is_primary', true)->pluck('id');
     expect($primaries)->toHaveCount(1)->and($primaries->first())->toBe($second->id);
 
-    /** @var Address|null $initialAddress */
-    $initialAddress = Address::find($initialPrimaryId);
+    /** @var AddressModel|null $initialAddress */
+    $initialAddress = AddressModel::find($initialPrimaryId);
     expect($initialAddress?->is_primary)->toBeFalse();
 });
 
@@ -68,10 +68,10 @@ it('filters customers by primary address state', function () {
     $stateA = State::query()->first() ?? State::factory()->create(['code' => 'AAA', 'name' => 'State A']);
     $stateB = State::factory()->create(['code' => 'BBB', 'name' => 'State B']);
 
-    $customerA = Customer::factory()->create();
+    $customerA = CustomerModel::factory()->create();
     $customerA->primaryAddress?->update(['state_id' => $stateA->id]);
 
-    $customerB = Customer::factory()->create();
+    $customerB = CustomerModel::factory()->create();
     $customerB->primaryAddress?->update(['state_id' => $stateB->id]);
 
     Livewire::test(ListCustomers::class)

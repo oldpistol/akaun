@@ -3,21 +3,21 @@
 namespace App\Filament\Widgets;
 
 use App\Enums\RiskLevel;
-use App\Models\Customer;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Infrastructure\Customer\Persistence\Eloquent\CustomerModel;
 
 class CustomerStatsOverview extends StatsOverviewWidget
 {
     protected function getStats(): array
     {
-        $activeCount = Customer::where('is_active', true)->count();
-        $inactiveCount = Customer::where('is_active', false)->count();
-        $totalCreditLimit = (float) Customer::sum('credit_limit');
-        $highRiskCount = Customer::where('risk_level', RiskLevel::High)->count();
+        $activeCount = CustomerModel::where('is_active', true)->count();
+        $inactiveCount = CustomerModel::where('is_active', false)->count();
+        $totalCreditLimit = (float) CustomerModel::sum('credit_limit');
+        $highRiskCount = CustomerModel::where('risk_level', RiskLevel::High)->count();
 
         return [
-            Stat::make('Total Customers', Customer::count())
+            Stat::make('Total Customers', CustomerModel::count())
                 ->description('All customers in the system')
                 ->descriptionIcon('heroicon-m-users')
                 ->color('primary'),

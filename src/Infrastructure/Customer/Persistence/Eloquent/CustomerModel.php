@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace Infrastructure\Customer\Persistence\Eloquent;
 
 use App\Enums\CustomerType;
 use App\Enums\RiskLevel;
+use Database\Factories\CustomerFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -11,12 +12,14 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-class Customer extends Model
+class CustomerModel extends Model
 {
     /** @use HasFactory<\Database\Factories\CustomerFactory> */
     use HasFactory;
 
     use SoftDeletes;
+
+    protected $table = 'customers';
 
     protected $fillable = [
         'uuid',
@@ -49,19 +52,19 @@ class Customer extends Model
     }
 
     /**
-     * @return MorphMany<Address, covariant self>
+     * @return MorphMany<AddressModel, covariant self>
      */
     public function addresses(): MorphMany
     {
-        return $this->morphMany(Address::class, 'addressable');
+        return $this->morphMany(AddressModel::class, 'addressable');
     }
 
     /**
-     * @return MorphOne<Address, covariant self>
+     * @return MorphOne<AddressModel, covariant self>
      */
     public function primaryAddress(): MorphOne
     {
-        return $this->morphOne(Address::class, 'addressable')->where('is_primary', true);
+        return $this->morphOne(AddressModel::class, 'addressable')->where('is_primary', true);
     }
 
     protected static function booted(): void
@@ -94,5 +97,13 @@ class Customer extends Model
             $firstPrimary = $this->addresses()->where('is_primary', true)->orderBy('id')->first();
             $this->addresses()->where('is_primary', true)->whereKeyNot($firstPrimary?->getKey())->update(['is_primary' => false]);
         }
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): CustomerFactory
+    {
+        return CustomerFactory::new();
     }
 }

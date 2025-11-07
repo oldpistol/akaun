@@ -6,6 +6,7 @@ namespace App\Filament\Resources\Customers\Tables;
 
 use App\Enums\CustomerType;
 use App\Enums\RiskLevel;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -13,7 +14,6 @@ use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
-use Filament\Support\Enums\Size;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -52,10 +52,12 @@ class CustomersTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                ViewAction::make()->size(Size::Small),
-                EditAction::make()->size(Size::Small),
-                DeleteAction::make()->size(Size::Small),
-                RestoreAction::make()->size(Size::Small),
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make(),
+                    DeleteAction::make(),
+                    RestoreAction::make(),
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

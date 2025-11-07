@@ -4,11 +4,11 @@ use App\Filament\Resources\Customers\Pages\CreateCustomer;
 use App\Filament\Resources\Customers\Pages\EditCustomer;
 use App\Filament\Resources\Customers\Pages\ListCustomers;
 use App\Filament\Resources\Customers\Pages\ViewCustomer;
-use App\Models\Customer;
 use App\Models\State;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Infrastructure\Customer\Persistence\Eloquent\CustomerModel;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 
@@ -24,9 +24,9 @@ beforeEach(function () {
 });
 
 it('lists customers and supports filtering', function () {
-    $customers = Customer::factory()->count(5)->create();
+    $customers = CustomerModel::factory()->count(5)->create();
 
-    /** @var Customer $first */
+    /** @var CustomerModel $first */
     $first = $customers->first();
 
     Livewire::test(ListCustomers::class)
@@ -71,18 +71,52 @@ it('creates a customer from the create page', function () {
         'email' => $email,
     ]);
 
-    $customer = Customer::query()->where('email', $email)->firstOrFail();
+    $customer = CustomerModel::query()->where('email', $email)->firstOrFail();
 
     assertDatabaseHas('addresses', [
-        'addressable_type' => Customer::class,
+        'addressable_type' => 'App\Models\Customer',
         'addressable_id' => $customer->id,
         'line1' => 'Line 1',
         'is_primary' => true,
     ]);
 });
 
+it('creates a customer without an email', function () {
+    $state = State::factory()->create([
+        'code' => 'KUL',
+        'name' => 'Kuala Lumpur',
+    ]);
+
+    Livewire::test(CreateCustomer::class)
+        ->fillForm([
+            'name' => 'No Email Customer',
+            'customer_type' => 'Individual',
+            'phone_primary' => '+60123456789',
+        ])
+        ->set('data.addresses', [
+            'item-1' => [
+                'label' => 'Primary',
+                'line1' => 'Line 1',
+                'city' => 'Kuala Lumpur',
+                'postcode' => '50000',
+                'state_id' => $state->id,
+                'country_code' => 'MY',
+                'is_primary' => true,
+            ],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors()
+        ->assertNotified()
+        ->assertRedirect();
+
+    assertDatabaseHas('customers', [
+        'name' => 'No Email Customer',
+        'email' => null,
+    ]);
+});
+
 it('views a customer on the view page', function () {
-    $customer = Customer::factory()->create([
+    $customer = CustomerModel::factory()->create([
         'name' => 'View Customer',
         'email' => 'viewcustomer@example.com',
     ]);
@@ -99,7 +133,7 @@ it('edits a customer from the edit page', function () {
         'code' => 'JHR',
         'name' => 'Johor',
     ]);
-    $customer = Customer::factory()->create([
+    $customer = CustomerModel::factory()->create([
         'name' => 'Old Customer',
         'email' => 'oldcustomer@example.com',
     ]);
@@ -129,7 +163,7 @@ it('edits a customer from the edit page', function () {
 });
 
 it('soft deletes a customer via the edit page header action', function () {
-    $customer = Customer::factory()->create();
+    $customer = CustomerModel::factory()->create();
 
     Livewire::test(EditCustomer::class, ['record' => $customer->getKey()])
         ->callAction('delete')
@@ -141,7 +175,7 @@ it('soft deletes a customer via the edit page header action', function () {
 });
 
 it('bulk soft deletes customers from the list page', function () {
-    $customers = Customer::factory()->count(3)->create();
+    $customers = CustomerModel::factory()->count(3)->create();
 
     Livewire::test(ListCustomers::class)
         ->callTableBulkAction('delete', $customers);

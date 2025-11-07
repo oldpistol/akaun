@@ -1,16 +1,19 @@
 <?php
 
-namespace App\Models;
+namespace Infrastructure\Customer\Persistence\Eloquent;
 
+use Database\Factories\AddressFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-class Address extends Model
+class AddressModel extends Model
 {
     /** @use HasFactory<\Database\Factories\AddressFactory> */
     use HasFactory;
+
+    protected $table = 'addresses';
 
     protected $fillable = [
         'label',
@@ -39,18 +42,18 @@ class Address extends Model
     }
 
     /**
-     * @return BelongsTo<State, covariant self>
+     * @return BelongsTo<\App\Models\State, covariant self>
      */
     public function state(): BelongsTo
     {
-        return $this->belongsTo(State::class);
+        return $this->belongsTo(\App\Models\State::class);
     }
 
     protected static function booted(): void
     {
         static::saved(function (self $address): void {
             $addressable = $address->addressable;
-            if (! $addressable instanceof Customer) {
+            if (! $addressable instanceof CustomerModel) {
                 return;
             }
 
@@ -64,7 +67,7 @@ class Address extends Model
 
             $hasPrimary = $addressable->addresses()->where('is_primary', true)->exists();
             if (! $hasPrimary) {
-                /** @var Address|null $first */
+                /** @var AddressModel|null $first */
                 $first = $addressable->addresses()->orderBy('id')->first();
                 if ($first && ! $first->is_primary) {
                     $first->forceFill(['is_primary' => true])->save();
@@ -74,7 +77,7 @@ class Address extends Model
 
         static::deleted(function (self $address): void {
             $addressable = $address->addressable;
-            if (! $addressable instanceof Customer) {
+            if (! $addressable instanceof CustomerModel) {
                 return;
             }
 
@@ -86,5 +89,13 @@ class Address extends Model
                 }
             }
         });
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): AddressFactory
+    {
+        return AddressFactory::new();
     }
 }

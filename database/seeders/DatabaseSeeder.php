@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Infrastructure\Customer\Persistence\Eloquent\CustomerModel;
 
 class DatabaseSeeder extends Seeder
 {
@@ -25,6 +25,6 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Test User']
         );
 
-        Customer::factory(20)->create();
+        CustomerModel::factory(20)->create();
     }
 }
