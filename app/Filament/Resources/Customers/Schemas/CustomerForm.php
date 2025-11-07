@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Customers\Schemas;
 
-use App\CustomerType;
-use App\RiskLevel;
+use App\Enums\CustomerType;
+use App\Enums\RiskLevel;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;

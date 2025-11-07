@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Customers\Tables;
 
-use App\CustomerType;
-use App\RiskLevel;
+use App\Enums\CustomerType;
+use App\Enums\RiskLevel;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
