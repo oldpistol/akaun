@@ -58,7 +58,7 @@ it('enforces single primary address after adding a new primary', function () {
 
     $primaries = $customer->addresses()->where('is_primary', true)->pluck('id');
     expect($primaries)->toHaveCount(1)->and($primaries->first())->toBe($second->id);
-    
+
     /** @var Address|null $initialAddress */
     $initialAddress = Address::find($initialPrimaryId);
     expect($initialAddress?->is_primary)->toBeFalse();
