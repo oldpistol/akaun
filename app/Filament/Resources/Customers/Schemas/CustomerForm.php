@@ -6,11 +6,12 @@ namespace App\Filament\Resources\Customers\Schemas;
 
 use App\CustomerType;
 use App\RiskLevel;
-use App\State;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
@@ -51,18 +52,25 @@ class CustomerForm
                                         TextInput::make('gst_number')->maxLength(25),
                                     ]),
                             ]),
-                        Tab::make('Address')
+                        Tab::make('Addresses')
                             ->schema([
-                                Grid::make(2)->schema([
-                                    TextInput::make('address_line1')->required()->maxLength(120),
-                                    TextInput::make('address_line2')->maxLength(120),
-                                    TextInput::make('city')->required()->maxLength(80),
-                                    TextInput::make('postcode')->required()->maxLength(10),
-                                    Select::make('state')
-                                        ->options(collect(State::cases())->mapWithKeys(fn ($s) => [$s->value => $s->value])->all())
-                                        ->required(),
-                                    TextInput::make('country_code')->default('MY')->maxLength(2),
-                                ]),
+                                Repeater::make('addresses')
+                                    ->relationship('addresses')
+                                    ->reorderable(false)
+                                    ->minItems(1)
+                                    ->schema([
+                                        Fieldset::make('Address')
+                                            ->schema([
+                                                TextInput::make('label')->maxLength(50),
+                                                TextInput::make('line1')->required()->maxLength(120),
+                                                TextInput::make('line2')->maxLength(120),
+                                                TextInput::make('city')->required()->maxLength(80),
+                                                TextInput::make('postcode')->required()->maxLength(10),
+                                                Select::make('state_id')->relationship('state', 'name')->searchable()->preload()->required(),
+                                                TextInput::make('country_code')->default('MY')->maxLength(2),
+                                                Toggle::make('is_primary')->label('Primary')->inline(false),
+                                            ]),
+                                    ]),
                             ]),
                     ]),
             ]);

@@ -6,7 +6,6 @@ namespace App\Filament\Resources\Customers\Tables;
 
 use App\CustomerType;
 use App\RiskLevel;
-use App\State;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -19,6 +18,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class CustomersTable
 {
@@ -30,7 +30,7 @@ class CustomersTable
                 TextColumn::make('email')->searchable()->sortable(),
                 TextColumn::make('phone_primary')->label('Phone')->searchable(),
                 TextColumn::make('customer_type')->badge()->sortable(),
-                TextColumn::make('state')->badge()->sortable(),
+                TextColumn::make('primaryAddress.state.name')->label('State')->badge()->sortable(),
                 TextColumn::make('risk_level')->badge()->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_active')->boolean()->label('Active')->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
@@ -38,10 +38,16 @@ class CustomersTable
             ->filters([
                 SelectFilter::make('customer_type')
                     ->options(collect(CustomerType::cases())->mapWithKeys(fn ($c) => [$c->value => $c->value])->all()),
-                SelectFilter::make('state')
-                    ->options(collect(State::cases())->mapWithKeys(fn ($s) => [$s->value => $s->value])->all()),
                 SelectFilter::make('risk_level')
                     ->options(collect(RiskLevel::cases())->mapWithKeys(fn ($r) => [$r->value => $r->value])->all()),
+                SelectFilter::make('state')
+                    ->label('State')
+                    ->relationship('primaryAddress.state', 'name')
+                    ->query(fn (Builder $query, array $data): Builder => $query->whereHas('primaryAddress', function (Builder $q) use ($data): void {
+                        if (! empty($data['value'])) {
+                            $q->where('state_id', $data['value']);
+                        }
+                    })),
                 TrashedFilter::make(),
             ])
             ->recordActions([

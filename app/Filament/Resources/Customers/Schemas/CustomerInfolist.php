@@ -35,14 +35,14 @@ class CustomerInfolist
                             TextEntry::make('gst_number')->placeholder('-'),
                         ])->columns(4),
                     ]),
-                Section::make('Address')
+                Section::make('Primary Address')
                     ->schema([
-                        TextEntry::make('address_line1'),
-                        TextEntry::make('address_line2')->placeholder('-'),
-                        TextEntry::make('city'),
-                        TextEntry::make('postcode'),
-                        TextEntry::make('state'),
-                        TextEntry::make('country_code'),
+                        TextEntry::make('primaryAddress.line1')->label('Line 1'),
+                        TextEntry::make('primaryAddress.line2')->placeholder('-')->label('Line 2'),
+                        TextEntry::make('primaryAddress.city')->label('City'),
+                        TextEntry::make('primaryAddress.postcode')->label('Postcode'),
+                        TextEntry::make('primaryAddress.state.name')->label('State'),
+                        TextEntry::make('primaryAddress.country_code')->label('Country'),
                     ]),
                 Section::make('Meta')
                     ->schema([

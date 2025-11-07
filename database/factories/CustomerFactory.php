@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Customer;
+use App\Models\State;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,10 +18,6 @@ class CustomerFactory extends Factory
      */
     public function definition(): array
     {
-        $states = [
-            'Johor', 'Kedah', 'Kelantan', 'KualaLumpur', 'Labuan', 'Malacca', 'NegeriSembilan', 'Pahang', 'Perak', 'Perlis', 'Penang', 'Putrajaya', 'Sabah', 'Sarawak', 'Selangor', 'Terengganu',
-        ];
-
         return [
             'uuid' => fake()->uuid(),
             'name' => fake()->name(),
@@ -36,13 +34,24 @@ class CustomerFactory extends Factory
             'credit_limit' => fake()->optional()->randomFloat(2, 0, 100000),
             'risk_level' => fake()->optional()->randomElement(['Low', 'Medium', 'High']),
             'notes' => fake()->optional()->paragraph(),
-            'address_line1' => fake()->streetAddress(),
-            'address_line2' => fake()->optional()->secondaryAddress(),
-            'city' => fake()->city(),
-            'postcode' => (string) fake()->numberBetween(10000, 99999),
-            'state' => fake()->randomElement($states),
-            'country_code' => 'MY',
             'email_verified_at' => null,
         ];
+    }
+
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Customer $customer): void {
+            $state = State::query()->inRandomOrder()->first() ?? State::factory()->create();
+
+            $customer->addresses()->create([
+                'label' => 'Primary',
+                'line1' => fake()->streetAddress(),
+                'city' => fake()->city(),
+                'postcode' => (string) fake()->numberBetween(10000, 99999),
+                'state_id' => $state->id,
+                'country_code' => 'MY',
+                'is_primary' => true,
+            ]);
+        });
     }
 }

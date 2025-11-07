@@ -5,6 +5,7 @@ use App\Filament\Resources\Customers\Pages\EditCustomer;
 use App\Filament\Resources\Customers\Pages\ListCustomers;
 use App\Filament\Resources\Customers\Pages\ViewCustomer;
 use App\Models\Customer;
+use App\Models\State;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -37,6 +38,10 @@ it('lists customers and supports filtering', function () {
 
 it('creates a customer from the create page', function () {
     $email = 'customer-create@example.com';
+    $state = State::factory()->create([
+        'code' => 'KUL',
+        'name' => 'Kuala Lumpur',
+    ]);
 
     Livewire::test(CreateCustomer::class)
         ->fillForm([
@@ -44,20 +49,35 @@ it('creates a customer from the create page', function () {
             'customer_type' => 'Individual',
             'email' => $email,
             'phone_primary' => '+60123456789',
-            'address_line1' => 'Line 1',
-            'city' => 'Kuala Lumpur',
-            'postcode' => '50000',
-            'state' => 'KualaLumpur',
-            'country_code' => 'MY',
+        ])
+        ->set('data.addresses', [
+            'item-1' => [
+                'label' => 'Primary',
+                'line1' => 'Line 1',
+                'city' => 'Kuala Lumpur',
+                'postcode' => '50000',
+                'state_id' => $state->id,
+                'country_code' => 'MY',
+                'is_primary' => true,
+            ],
         ])
         ->call('create')
+        ->assertHasNoFormErrors()
         ->assertNotified()
         ->assertRedirect();
 
     assertDatabaseHas('customers', [
         'name' => 'Customer Create',
         'email' => $email,
-        'state' => 'KualaLumpur',
+    ]);
+
+    $customer = Customer::query()->where('email', $email)->firstOrFail();
+
+    assertDatabaseHas('addresses', [
+        'addressable_type' => Customer::class,
+        'addressable_id' => $customer->id,
+        'line1' => 'Line 1',
+        'is_primary' => true,
     ]);
 });
 
@@ -65,7 +85,6 @@ it('views a customer on the view page', function () {
     $customer = Customer::factory()->create([
         'name' => 'View Customer',
         'email' => 'viewcustomer@example.com',
-        'state' => 'Selangor',
     ]);
 
     /** @var Testable $component */
@@ -76,10 +95,13 @@ it('views a customer on the view page', function () {
 });
 
 it('edits a customer from the edit page', function () {
+    $state = State::factory()->create([
+        'code' => 'JHR',
+        'name' => 'Johor',
+    ]);
     $customer = Customer::factory()->create([
         'name' => 'Old Customer',
         'email' => 'oldcustomer@example.com',
-        'state' => 'Johor',
     ]);
 
     Livewire::test(EditCustomer::class, ['record' => $customer->getKey()])
@@ -87,11 +109,15 @@ it('edits a customer from the edit page', function () {
             'name' => 'New Customer',
             'email' => 'newcustomer@example.com',
             'phone_primary' => '+60112233445',
-            'address_line1' => 'Line 1',
-            'city' => 'Johor Bahru',
-            'postcode' => '80100',
-            'state' => 'Johor',
-            'country_code' => 'MY',
+            'addresses' => [[
+                'label' => 'Primary',
+                'line1' => 'Line 1',
+                'city' => 'Johor Bahru',
+                'postcode' => '80100',
+                'state_id' => $state->id,
+                'country_code' => 'MY',
+                'is_primary' => true,
+            ]],
         ])
         ->call('save')
         ->assertNotified();
