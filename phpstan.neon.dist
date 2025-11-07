@@ -1,0 +1,22 @@
+includes:
+    - vendor/nunomaduro/larastan/extension.neon
+
+parameters:
+    level: 6
+    paths:
+        - app
+        - tests
+
+    treatPhpDocTypesAsCertain: false
+    universalObjectCratesClasses:
+        - Illuminate\Support\Collection
+        - Illuminate\Database\Eloquent\Collection
+    excludePaths:
+        - tests/Pest.php
+    ignoreErrors:
+        # Pest global function style may trigger undefined $this
+        - '#Undefined variable: \$this#'
+        # Dynamic Livewire test helpers (Filament wrappers) until stubs provided
+        - '#Call to an undefined method Livewire\\Features\\SupportTesting\\Testable::(assertCanSeeTableRecords|fillForm|callAction|callTableBulkAction)#'
+        - '#Call to an undefined method PHPUnit\\Framework\\TestCase::(assertDatabaseHas|assertDatabaseMissing)#'
+        - '#Access to an undefined property App\\Models\\User\$[a-zA-Z_]+#'
