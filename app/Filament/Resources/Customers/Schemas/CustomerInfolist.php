@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Customers\Schemas;
 
 use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -16,40 +17,49 @@ class CustomerInfolist
     {
         return $schema
             ->components([
-                Section::make('Customer')
+                Section::make('General Information')
+                    ->columnSpanFull()
                     ->schema([
                         Grid::make(2)->schema([
                             TextEntry::make('name'),
-                            TextEntry::make('customer_type'),
-                            TextEntry::make('email')->label('Email'),
-                            TextEntry::make('phone_primary')->label('Phone'),
-                            TextEntry::make('phone_secondary')->label('Alt Phone')->placeholder('-'),
-                            TextEntry::make('risk_level')->placeholder('-'),
+                            TextEntry::make('customer_type')->badge(),
+                            TextEntry::make('email')->placeholder('-'),
+                            TextEntry::make('phone_primary')->label('Primary Phone'),
+                            TextEntry::make('phone_secondary')->label('Secondary Phone')->placeholder('-'),
+                            TextEntry::make('email_verified_at')->dateTime()->placeholder('-'),
+                            TextEntry::make('risk_level')->badge()->placeholder('-'),
                             TextEntry::make('credit_limit')->money('myr')->placeholder('-'),
-                            IconEntry::make('is_active')->boolean(),
+                            IconEntry::make('is_active')->boolean()->label('Active'),
+                            TextEntry::make('billing_attention')->placeholder('-'),
                         ]),
+                    ]),
+                Section::make('Identification')
+                    ->columnSpanFull()
+                    ->schema([
                         Grid::make(2)->schema([
                             TextEntry::make('nric')->placeholder('-'),
                             TextEntry::make('passport_no')->placeholder('-'),
-                            TextEntry::make('company_ssm_no')->placeholder('-'),
-                            TextEntry::make('gst_number')->placeholder('-'),
-                        ])->columns(4),
+                            TextEntry::make('company_ssm_no')->label('Company SSM No')->placeholder('-'),
+                            TextEntry::make('gst_number')->label('GST Number')->placeholder('-'),
+                        ]),
                     ]),
-                Section::make('Primary Address')
+                Section::make('Addresses')
+                    ->columnSpanFull()
                     ->schema([
-                        TextEntry::make('primaryAddress.line1')->label('Line 1'),
-                        TextEntry::make('primaryAddress.line2')->placeholder('-')->label('Line 2'),
-                        TextEntry::make('primaryAddress.city')->label('City'),
-                        TextEntry::make('primaryAddress.postcode')->label('Postcode'),
-                        TextEntry::make('primaryAddress.state.name')->label('State'),
-                        TextEntry::make('primaryAddress.country_code')->label('Country'),
-                    ]),
-                Section::make('Meta')
-                    ->schema([
-                        TextEntry::make('email_verified_at')->dateTime()->placeholder('-'),
-                        TextEntry::make('created_at')->dateTime(),
-                        TextEntry::make('updated_at')->dateTime(),
-                        TextEntry::make('deleted_at')->dateTime()->placeholder('-'),
+                        RepeatableEntry::make('addresses')
+                            ->label('')
+                            ->schema([
+                                Grid::make(2)->schema([
+                                    TextEntry::make('label')->placeholder('-'),
+                                    TextEntry::make('line1')->label('Address Line 1'),
+                                    TextEntry::make('line2')->label('Address Line 2')->placeholder('-'),
+                                    TextEntry::make('city'),
+                                    TextEntry::make('postcode'),
+                                    TextEntry::make('state.name')->label('State'),
+                                    TextEntry::make('country_code')->label('Country Code'),
+                                    IconEntry::make('is_primary')->boolean()->label('Primary'),
+                                ]),
+                            ]),
                     ]),
             ]);
     }
