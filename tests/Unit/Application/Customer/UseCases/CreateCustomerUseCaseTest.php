@@ -32,7 +32,7 @@ it('creates a customer with required fields only', function () {
 
     expect($customer)->toBeInstanceOf(Customer::class)
         ->and($customer->name())->toBe('John Doe')
-        ->and($customer->email()->value())->toBe('john@example.com')
+        ->and($customer->email()?->value())->toBe('john@example.com')
         ->and($customer->phonePrimary()->value())->toBe('+60123456789')
         ->and($customer->customerType())->toBe(CustomerType::Individual)
         ->and($customer->isActive())->toBeTrue()
@@ -72,7 +72,7 @@ it('creates a customer with all optional fields', function () {
 
     expect($customer)->toBeInstanceOf(Customer::class)
         ->and($customer->name())->toBe('Jane Smith')
-        ->and($customer->email()->value())->toBe('jane@example.com')
+        ->and($customer->email()?->value())->toBe('jane@example.com')
         ->and($customer->phonePrimary()->value())->toBe('+60123456789')
         ->and($customer->phoneSecondary()?->value())->toBe('+60198765432')
         ->and($customer->nric()?->value())->toBe('901201011234')
@@ -167,7 +167,7 @@ it('creates customer from DTO array', function () {
     $customer = $useCase->execute($dto);
 
     expect($customer->name())->toBe('Test Customer')
-        ->and($customer->email()->value())->toBe('test@example.com')
+        ->and($customer->email()?->value())->toBe('test@example.com')
         ->and($customer->customerType())->toBe(CustomerType::Individual)
         ->and($customer->creditLimit()->amount())->toBe('1000.00')
         ->and($customer->riskLevel())->toBe(RiskLevel::Medium);

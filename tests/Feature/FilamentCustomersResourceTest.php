@@ -49,6 +49,15 @@ it('creates a customer from the create page', function () {
             'customer_type' => 'Individual',
             'email' => $email,
             'phone_primary' => '+60123456789',
+            'phone_secondary' => '+60198765432',
+            'nric' => '901201011234',
+            'passport_no' => 'A12345678',
+            'company_ssm_no' => 'SSM123456',
+            'gst_number' => 'GST789',
+            'billing_attention' => 'Finance Department',
+            'credit_limit' => '10000.00',
+            'risk_level' => 'Medium',
+            'is_active' => true,
         ])
         ->set('data.addresses', [
             'item-1' => [
@@ -69,6 +78,16 @@ it('creates a customer from the create page', function () {
     assertDatabaseHas('customers', [
         'name' => 'Customer Create',
         'email' => $email,
+        'phone_primary' => '+60123456789',
+        'phone_secondary' => '+60198765432',
+        'nric' => '901201011234',
+        'passport_no' => 'A12345678',
+        'company_ssm_no' => 'SSM123456',
+        'gst_number' => 'GST789',
+        'billing_attention' => 'Finance Department',
+        'credit_limit' => 10000,
+        'risk_level' => 'Medium',
+        'is_active' => 1,
     ]);
 
     $customer = CustomerModel::query()->where('email', $email)->firstOrFail();
@@ -129,10 +148,6 @@ it('views a customer on the view page', function () {
 });
 
 it('edits a customer from the edit page', function () {
-    $state = State::factory()->create([
-        'code' => 'JHR',
-        'name' => 'Johor',
-    ]);
     $customer = CustomerModel::factory()->create([
         'name' => 'Old Customer',
         'email' => 'oldcustomer@example.com',
@@ -143,23 +158,75 @@ it('edits a customer from the edit page', function () {
             'name' => 'New Customer',
             'email' => 'newcustomer@example.com',
             'phone_primary' => '+60112233445',
-            'addresses' => [[
-                'label' => 'Primary',
-                'line1' => 'Line 1',
-                'city' => 'Johor Bahru',
-                'postcode' => '80100',
-                'state_id' => $state->id,
-                'country_code' => 'MY',
-                'is_primary' => true,
-            ]],
+            'phone_secondary' => '+60187654321',
+            'nric' => '850505051234',
+            'passport_no' => 'B98765432',
+            'company_ssm_no' => 'SSM987654',
+            'gst_number' => 'GST123',
+            'customer_type' => 'Business',
+            'billing_attention' => 'Accounts Department',
+            'credit_limit' => '25000.00',
+            'risk_level' => 'High',
+            'is_active' => false,
         ])
         ->call('save')
         ->assertNotified();
 
-    expect($customer->refresh()->only(['name', 'email']))->toMatchArray([
-        'name' => 'New Customer',
-        'email' => 'newcustomer@example.com',
+    $customer->refresh();
+
+    expect($customer->name)->toBe('New Customer');
+    expect($customer->email)->toBe('newcustomer@example.com');
+    expect($customer->phone_primary)->toBe('+60112233445');
+    expect($customer->phone_secondary)->toBe('+60187654321');
+    expect($customer->nric)->toBe('850505051234');
+    expect($customer->passport_no)->toBe('B98765432');
+    expect($customer->company_ssm_no)->toBe('SSM987654');
+    expect($customer->gst_number)->toBe('GST123');
+
+    /** @var \App\Enums\CustomerType $customerType */
+    $customerType = $customer->customer_type;
+    expect($customerType->value)->toBe('Business');
+
+    expect($customer->billing_attention)->toBe('Accounts Department');
+    expect($customer->credit_limit)->toBe('25000.00');
+
+    /** @var \App\Enums\RiskLevel $riskLevel */
+    $riskLevel = $customer->risk_level;
+    expect($riskLevel->value)->toBe('High');
+    expect($customer->is_active)->toBe(false);
+});
+
+it('preserves addresses when editing a customer without modifying addresses', function () {
+    $customer = CustomerModel::factory()->create([
+        'name' => 'Customer With Address',
     ]);
+
+    // Get the initial address count
+    $initialAddressCount = $customer->addresses()->count();
+    expect($initialAddressCount)->toBeGreaterThan(0);
+
+    $initialAddress = $customer->addresses()->first();
+
+    // Edit the customer without touching addresses
+    Livewire::test(EditCustomer::class, ['record' => $customer->getKey()])
+        ->fillForm([
+            'name' => 'Updated Customer Name',
+            'phone_primary' => '+60123456789',
+        ])
+        ->call('save')
+        ->assertNotified();
+
+    $customer->refresh();
+
+    // Verify customer was updated
+    expect($customer->name)->toBe('Updated Customer Name');
+    expect($customer->phone_primary)->toBe('+60123456789');
+
+    // Verify addresses were preserved
+    expect($customer->addresses()->count())->toBe($initialAddressCount);
+
+    $firstAddress = $customer->addresses()->first();
+    expect($firstAddress?->line1)->toBe($initialAddress?->line1);
 });
 
 it('soft deletes a customer via the edit page header action', function () {

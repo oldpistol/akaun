@@ -31,6 +31,22 @@ class DomainServiceProvider extends ServiceProvider
         $this->app->bind(\Application\Customer\UseCases\DeleteCustomerUseCase::class);
         $this->app->bind(\Application\Customer\UseCases\GetCustomerUseCase::class);
         $this->app->bind(\Application\Customer\UseCases\ListCustomersUseCase::class);
+
+        // Bind State Repository Interface to Eloquent Implementation
+        $this->app->bind(
+            \Domain\State\Repositories\StateRepositoryInterface::class,
+            \Infrastructure\State\Repositories\EloquentStateRepository::class
+        );
+
+        // Bind State Mapper
+        $this->app->singleton(\Infrastructure\State\Mappers\StateMapper::class);
+
+        // Bind State Use Cases
+        $this->app->bind(\Application\State\UseCases\CreateStateUseCase::class);
+        $this->app->bind(\Application\State\UseCases\UpdateStateUseCase::class);
+        $this->app->bind(\Application\State\UseCases\DeleteStateUseCase::class);
+        $this->app->bind(\Application\State\UseCases\GetStateUseCase::class);
+        $this->app->bind(\Application\State\UseCases\ListStatesUseCase::class);
     }
 
     /**

@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\State;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Infrastructure\State\Persistence\Eloquent\StateModel;
 
 class StatesTableSeeder extends Seeder
 {
@@ -32,7 +32,7 @@ class StatesTableSeeder extends Seeder
         ];
 
         foreach ($states as $state) {
-            State::query()->updateOrCreate(['code' => $state['code']], $state);
+            StateModel::query()->updateOrCreate(['code' => $state['code']], $state);
         }
     }
 }

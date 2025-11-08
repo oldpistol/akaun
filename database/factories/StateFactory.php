@@ -3,12 +3,15 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Infrastructure\State\Persistence\Eloquent\StateModel;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\State>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<StateModel>
  */
 class StateFactory extends Factory
 {
+    protected $model = StateModel::class;
+
     /**
      * Define the model's default state.
      *

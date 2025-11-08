@@ -19,7 +19,7 @@ it('creates a new customer with required fields', function () {
     );
 
     expect($customer->name())->toBe('John Doe')
-        ->and($customer->email()->value())->toBe('john@example.com')
+        ->and($customer->email()?->value())->toBe('john@example.com')
         ->and($customer->phonePrimary()->value())->toBe('+60123456789')
         ->and($customer->customerType())->toBe(CustomerType::Individual)
         ->and($customer->isActive())->toBeTrue()
@@ -92,7 +92,7 @@ it('updates customer email and resets email verification', function () {
 
     $customer->updateEmail(Email::fromString('newemail@example.com'));
 
-    expect($customer->email()->value())->toBe('newemail@example.com')
+    expect($customer->email()?->value())->toBe('newemail@example.com')
         ->and($customer->emailVerifiedAt())->toBeNull();
 });
 
@@ -311,4 +311,133 @@ it('restores soft deleted customer', function () {
 
     expect($customer->isDeleted())->toBeFalse()
         ->and($customer->deletedAt())->toBeNull();
+});
+
+it('updates customer NRIC', function () {
+    $customer = Customer::create(
+        name: 'John Doe',
+        email: Email::fromString('john@example.com'),
+        phonePrimary: Phone::fromString('+60123456789'),
+        customerType: CustomerType::Individual,
+    );
+
+    expect($customer->nric())->toBeNull();
+
+    $customer->updateNric(NRIC::fromString('901201011234'));
+
+    expect($customer->nric()?->value())->toBe('901201011234');
+
+    $customer->updateNric(null);
+
+    expect($customer->nric())->toBeNull();
+});
+
+it('updates customer passport number', function () {
+    $customer = Customer::create(
+        name: 'John Doe',
+        email: Email::fromString('john@example.com'),
+        phonePrimary: Phone::fromString('+60123456789'),
+        customerType: CustomerType::Individual,
+    );
+
+    expect($customer->passportNo())->toBeNull();
+
+    $customer->updatePassportNo(PassportNumber::fromString('A12345678'));
+
+    expect($customer->passportNo()?->value())->toBe('A12345678');
+
+    $customer->updatePassportNo(null);
+
+    expect($customer->passportNo())->toBeNull();
+});
+
+it('updates customer company SSM number', function () {
+    $customer = Customer::create(
+        name: 'John Doe',
+        email: Email::fromString('john@example.com'),
+        phonePrimary: Phone::fromString('+60123456789'),
+        customerType: CustomerType::Individual,
+    );
+
+    expect($customer->companySsmNo())->toBeNull();
+
+    $customer->updateCompanySsmNo('SSM123456');
+
+    expect($customer->companySsmNo())->toBe('SSM123456');
+
+    $customer->updateCompanySsmNo(null);
+
+    expect($customer->companySsmNo())->toBeNull();
+});
+
+it('updates customer GST number', function () {
+    $customer = Customer::create(
+        name: 'John Doe',
+        email: Email::fromString('john@example.com'),
+        phonePrimary: Phone::fromString('+60123456789'),
+        customerType: CustomerType::Individual,
+    );
+
+    expect($customer->gstNumber())->toBeNull();
+
+    $customer->updateGstNumber('GST789');
+
+    expect($customer->gstNumber())->toBe('GST789');
+
+    $customer->updateGstNumber(null);
+
+    expect($customer->gstNumber())->toBeNull();
+});
+
+it('updates customer type', function () {
+    $customer = Customer::create(
+        name: 'John Doe',
+        email: Email::fromString('john@example.com'),
+        phonePrimary: Phone::fromString('+60123456789'),
+        customerType: CustomerType::Individual,
+    );
+
+    expect($customer->customerType())->toBe(CustomerType::Individual);
+
+    $customer->updateCustomerType(CustomerType::Business);
+
+    expect($customer->customerType())->toBe(CustomerType::Business);
+});
+
+it('updates customer notes', function () {
+    $customer = Customer::create(
+        name: 'John Doe',
+        email: Email::fromString('john@example.com'),
+        phonePrimary: Phone::fromString('+60123456789'),
+        customerType: CustomerType::Individual,
+    );
+
+    expect($customer->notes())->toBeNull();
+
+    $customer->updateNotes('This is an important customer');
+
+    expect($customer->notes())->toBe('This is an important customer');
+
+    $customer->updateNotes(null);
+
+    expect($customer->notes())->toBeNull();
+});
+
+it('updates customer billing attention', function () {
+    $customer = Customer::create(
+        name: 'John Doe',
+        email: Email::fromString('john@example.com'),
+        phonePrimary: Phone::fromString('+60123456789'),
+        customerType: CustomerType::Individual,
+    );
+
+    expect($customer->billingAttention())->toBeNull();
+
+    $customer->updateBillingAttention('Finance Department');
+
+    expect($customer->billingAttention())->toBe('Finance Department');
+
+    $customer->updateBillingAttention(null);
+
+    expect($customer->billingAttention())->toBeNull();
 });

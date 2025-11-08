@@ -8,6 +8,8 @@ use Domain\Customer\Exceptions\CustomerNotFoundException;
 use Domain\Customer\Repositories\CustomerRepositoryInterface;
 use Domain\Customer\ValueObjects\Email;
 use Domain\Customer\ValueObjects\Money;
+use Domain\Customer\ValueObjects\NRIC;
+use Domain\Customer\ValueObjects\PassportNumber;
 use Domain\Customer\ValueObjects\Phone;
 
 final readonly class UpdateCustomerUseCase
@@ -50,6 +52,34 @@ final readonly class UpdateCustomerUseCase
 
         if ($dto->isActive !== null) {
             $dto->isActive ? $customer->activate() : $customer->deactivate();
+        }
+
+        if ($dto->nric !== null) {
+            $customer->updateNric($dto->nric !== '' ? NRIC::fromString($dto->nric) : null);
+        }
+
+        if ($dto->passportNo !== null) {
+            $customer->updatePassportNo($dto->passportNo !== '' ? PassportNumber::fromString($dto->passportNo) : null);
+        }
+
+        if ($dto->companySsmNo !== null) {
+            $customer->updateCompanySsmNo($dto->companySsmNo !== '' ? $dto->companySsmNo : null);
+        }
+
+        if ($dto->gstNumber !== null) {
+            $customer->updateGstNumber($dto->gstNumber !== '' ? $dto->gstNumber : null);
+        }
+
+        if ($dto->customerType !== null) {
+            $customer->updateCustomerType($dto->customerType);
+        }
+
+        if ($dto->notes !== null) {
+            $customer->updateNotes($dto->notes !== '' ? $dto->notes : null);
+        }
+
+        if ($dto->billingAttention !== null) {
+            $customer->updateBillingAttention($dto->billingAttention !== '' ? $dto->billingAttention : null);
         }
 
         return $this->customerRepository->save($customer);

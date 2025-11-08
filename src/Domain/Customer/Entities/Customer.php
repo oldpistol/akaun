@@ -237,6 +237,48 @@ final class Customer
         $this->touch();
     }
 
+    public function updateNric(?NRIC $nric): void
+    {
+        $this->nric = $nric;
+        $this->touch();
+    }
+
+    public function updatePassportNo(?PassportNumber $passportNo): void
+    {
+        $this->passportNo = $passportNo;
+        $this->touch();
+    }
+
+    public function updateCompanySsmNo(?string $companySsmNo): void
+    {
+        $this->companySsmNo = $companySsmNo;
+        $this->touch();
+    }
+
+    public function updateGstNumber(?string $gstNumber): void
+    {
+        $this->gstNumber = $gstNumber;
+        $this->touch();
+    }
+
+    public function updateCustomerType(CustomerType $customerType): void
+    {
+        $this->customerType = $customerType;
+        $this->touch();
+    }
+
+    public function updateNotes(?string $notes): void
+    {
+        $this->notes = $notes;
+        $this->touch();
+    }
+
+    public function updateBillingAttention(?string $billingAttention): void
+    {
+        $this->billingAttention = $billingAttention;
+        $this->touch();
+    }
+
     public function activate(): void
     {
         $this->isActive = true;

@@ -54,7 +54,7 @@ it('updates customer name only when provided', function () {
     $result = $useCase->execute(1, $dto);
 
     expect($result->name())->toBe('Updated Name')
-        ->and($result->email()->value())->toBe('test@example.com');
+        ->and($result->email()?->value())->toBe('test@example.com');
 });
 
 it('updates customer email when provided', function () {
@@ -83,7 +83,7 @@ it('updates customer email when provided', function () {
     $useCase = new UpdateCustomerUseCase($repositoryMock);
     $result = $useCase->execute(1, $dto);
 
-    expect($result->email()->value())->toBe('newemail@example.com')
+    expect($result->email()?->value())->toBe('newemail@example.com')
         ->and($result->name())->toBe('John Doe');
 });
 
@@ -272,7 +272,7 @@ it('updates multiple fields at once', function () {
     $result = $useCase->execute(1, $dto);
 
     expect($result->name())->toBe('Updated Name')
-        ->and($result->email()->value())->toBe('updated@example.com')
+        ->and($result->email()?->value())->toBe('updated@example.com')
         ->and($result->creditLimit()->amount())->toBe('15000.00')
         ->and($result->riskLevel())->toBe(RiskLevel::Medium)
         ->and($result->isActive())->toBeFalse();
@@ -307,7 +307,7 @@ it('does not update fields when DTO values are null', function () {
     $result = $useCase->execute(1, $dto);
 
     expect($result->name())->toBe('Updated Name')
-        ->and($result->email()->value())->toBe('original@example.com')
+        ->and($result->email()?->value())->toBe('original@example.com')
         ->and($result->creditLimit()->amount())->toBe('5000.00')
         ->and($result->riskLevel())->toBe(RiskLevel::High);
 });
@@ -346,7 +346,7 @@ it('creates customer from DTO array using fromArray', function () {
     $result = $useCase->execute(1, $dto);
 
     expect($result->name())->toBe('Updated from Array')
-        ->and($result->email()->value())->toBe('array@example.com')
+        ->and($result->email()?->value())->toBe('array@example.com')
         ->and($result->creditLimit()->amount())->toBe('8000.00')
         ->and($result->riskLevel())->toBe(RiskLevel::Low);
 });
@@ -377,4 +377,250 @@ it('calls repository methods correctly', function () {
 
     $useCase = new UpdateCustomerUseCase($repositoryMock);
     $useCase->execute(1, $dto);
+});
+
+it('updates customer NRIC when provided', function () {
+    $dto = new UpdateCustomerDTO(nric: '901201011234');
+
+    $customer = Customer::create(
+        name: 'John Doe',
+        email: Email::fromString('test@example.com'),
+        phonePrimary: Phone::fromString('+60123456789'),
+        customerType: \App\Enums\CustomerType::Individual,
+    );
+
+    $repositoryMock = mock(CustomerRepositoryInterface::class, function (MockInterface $mock) use ($customer) {
+        $mock->shouldReceive('findById')
+            ->once()
+            ->with(1)
+            ->andReturn($customer);
+
+        $mock->shouldReceive('save')
+            ->once()
+            ->andReturnUsing(function (Customer $customer) {
+                return $customer;
+            });
+    });
+
+    $useCase = new UpdateCustomerUseCase($repositoryMock);
+    $result = $useCase->execute(1, $dto);
+
+    expect($result->nric()?->value())->toBe('901201011234');
+});
+
+it('updates customer passport number when provided', function () {
+    $dto = new UpdateCustomerDTO(passportNo: 'A12345678');
+
+    $customer = Customer::create(
+        name: 'John Doe',
+        email: Email::fromString('test@example.com'),
+        phonePrimary: Phone::fromString('+60123456789'),
+        customerType: \App\Enums\CustomerType::Individual,
+    );
+
+    $repositoryMock = mock(CustomerRepositoryInterface::class, function (MockInterface $mock) use ($customer) {
+        $mock->shouldReceive('findById')
+            ->once()
+            ->with(1)
+            ->andReturn($customer);
+
+        $mock->shouldReceive('save')
+            ->once()
+            ->andReturnUsing(function (Customer $customer) {
+                return $customer;
+            });
+    });
+
+    $useCase = new UpdateCustomerUseCase($repositoryMock);
+    $result = $useCase->execute(1, $dto);
+
+    expect($result->passportNo()?->value())->toBe('A12345678');
+});
+
+it('updates customer company SSM number when provided', function () {
+    $dto = new UpdateCustomerDTO(companySsmNo: 'SSM123456');
+
+    $customer = Customer::create(
+        name: 'John Doe',
+        email: Email::fromString('test@example.com'),
+        phonePrimary: Phone::fromString('+60123456789'),
+        customerType: \App\Enums\CustomerType::Individual,
+    );
+
+    $repositoryMock = mock(CustomerRepositoryInterface::class, function (MockInterface $mock) use ($customer) {
+        $mock->shouldReceive('findById')
+            ->once()
+            ->with(1)
+            ->andReturn($customer);
+
+        $mock->shouldReceive('save')
+            ->once()
+            ->andReturnUsing(function (Customer $customer) {
+                return $customer;
+            });
+    });
+
+    $useCase = new UpdateCustomerUseCase($repositoryMock);
+    $result = $useCase->execute(1, $dto);
+
+    expect($result->companySsmNo())->toBe('SSM123456');
+});
+
+it('updates customer GST number when provided', function () {
+    $dto = new UpdateCustomerDTO(gstNumber: 'GST789');
+
+    $customer = Customer::create(
+        name: 'John Doe',
+        email: Email::fromString('test@example.com'),
+        phonePrimary: Phone::fromString('+60123456789'),
+        customerType: \App\Enums\CustomerType::Individual,
+    );
+
+    $repositoryMock = mock(CustomerRepositoryInterface::class, function (MockInterface $mock) use ($customer) {
+        $mock->shouldReceive('findById')
+            ->once()
+            ->with(1)
+            ->andReturn($customer);
+
+        $mock->shouldReceive('save')
+            ->once()
+            ->andReturnUsing(function (Customer $customer) {
+                return $customer;
+            });
+    });
+
+    $useCase = new UpdateCustomerUseCase($repositoryMock);
+    $result = $useCase->execute(1, $dto);
+
+    expect($result->gstNumber())->toBe('GST789');
+});
+
+it('updates customer type when provided', function () {
+    $dto = new UpdateCustomerDTO(customerType: \App\Enums\CustomerType::Business);
+
+    $customer = Customer::create(
+        name: 'John Doe',
+        email: Email::fromString('test@example.com'),
+        phonePrimary: Phone::fromString('+60123456789'),
+        customerType: \App\Enums\CustomerType::Individual,
+    );
+
+    $repositoryMock = mock(CustomerRepositoryInterface::class, function (MockInterface $mock) use ($customer) {
+        $mock->shouldReceive('findById')
+            ->once()
+            ->with(1)
+            ->andReturn($customer);
+
+        $mock->shouldReceive('save')
+            ->once()
+            ->andReturnUsing(function (Customer $customer) {
+                return $customer;
+            });
+    });
+
+    $useCase = new UpdateCustomerUseCase($repositoryMock);
+    $result = $useCase->execute(1, $dto);
+
+    expect($result->customerType())->toBe(\App\Enums\CustomerType::Business);
+});
+
+it('updates customer notes when provided', function () {
+    $dto = new UpdateCustomerDTO(notes: 'Important customer notes');
+
+    $customer = Customer::create(
+        name: 'John Doe',
+        email: Email::fromString('test@example.com'),
+        phonePrimary: Phone::fromString('+60123456789'),
+        customerType: \App\Enums\CustomerType::Individual,
+    );
+
+    $repositoryMock = mock(CustomerRepositoryInterface::class, function (MockInterface $mock) use ($customer) {
+        $mock->shouldReceive('findById')
+            ->once()
+            ->with(1)
+            ->andReturn($customer);
+
+        $mock->shouldReceive('save')
+            ->once()
+            ->andReturnUsing(function (Customer $customer) {
+                return $customer;
+            });
+    });
+
+    $useCase = new UpdateCustomerUseCase($repositoryMock);
+    $result = $useCase->execute(1, $dto);
+
+    expect($result->notes())->toBe('Important customer notes');
+});
+
+it('updates customer billing attention when provided', function () {
+    $dto = new UpdateCustomerDTO(billingAttention: 'Finance Department');
+
+    $customer = Customer::create(
+        name: 'John Doe',
+        email: Email::fromString('test@example.com'),
+        phonePrimary: Phone::fromString('+60123456789'),
+        customerType: \App\Enums\CustomerType::Individual,
+    );
+
+    $repositoryMock = mock(CustomerRepositoryInterface::class, function (MockInterface $mock) use ($customer) {
+        $mock->shouldReceive('findById')
+            ->once()
+            ->with(1)
+            ->andReturn($customer);
+
+        $mock->shouldReceive('save')
+            ->once()
+            ->andReturnUsing(function (Customer $customer) {
+                return $customer;
+            });
+    });
+
+    $useCase = new UpdateCustomerUseCase($repositoryMock);
+    $result = $useCase->execute(1, $dto);
+
+    expect($result->billingAttention())->toBe('Finance Department');
+});
+
+it('updates all new fields at once', function () {
+    $dto = new UpdateCustomerDTO(
+        nric: '901201011234',
+        passportNo: 'A12345678',
+        companySsmNo: 'SSM123456',
+        gstNumber: 'GST789',
+        customerType: \App\Enums\CustomerType::Business,
+        notes: 'VIP customer',
+        billingAttention: 'Accounts Payable',
+    );
+
+    $customer = Customer::create(
+        name: 'John Doe',
+        email: Email::fromString('test@example.com'),
+        phonePrimary: Phone::fromString('+60123456789'),
+        customerType: \App\Enums\CustomerType::Individual,
+    );
+
+    $repositoryMock = mock(CustomerRepositoryInterface::class, function (MockInterface $mock) use ($customer) {
+        $mock->shouldReceive('findById')
+            ->once()
+            ->with(1)
+            ->andReturn($customer);
+
+        $mock->shouldReceive('save')
+            ->once()
+            ->andReturnUsing(function (Customer $customer) {
+                return $customer;
+            });
+    });
+
+    $useCase = new UpdateCustomerUseCase($repositoryMock);
+    $result = $useCase->execute(1, $dto);
+
+    expect($result->nric()?->value())->toBe('901201011234')
+        ->and($result->passportNo()?->value())->toBe('A12345678')
+        ->and($result->companySsmNo())->toBe('SSM123456')
+        ->and($result->gstNumber())->toBe('GST789')
+        ->and($result->customerType())->toBe(\App\Enums\CustomerType::Business)
+        ->and($result->notes())->toBe('VIP customer')
+        ->and($result->billingAttention())->toBe('Accounts Payable');
 });

@@ -45,7 +45,7 @@ it('retrieves customer successfully', function () {
 
     expect($result)->toBeInstanceOf(Customer::class)
         ->and($result->name())->toBe('John Doe')
-        ->and($result->email()->value())->toBe('test@example.com')
+        ->and($result->email()?->value())->toBe('test@example.com')
         ->and($result->phonePrimary()->value())->toBe('+60123456789')
         ->and($result->customerType())->toBe(CustomerType::Individual);
 });
@@ -74,7 +74,7 @@ it('retrieves customer with all fields populated', function () {
 
     expect($result)->toBeInstanceOf(Customer::class)
         ->and($result->name())->toBe('Jane Smith')
-        ->and($result->email()->value())->toBe('jane@example.com')
+        ->and($result->email()?->value())->toBe('jane@example.com')
         ->and($result->phoneSecondary()?->value())->toBe('+60198765432')
         ->and($result->creditLimit()->amount())->toBe('10000.00')
         ->and($result->riskLevel())->toBe(RiskLevel::High)

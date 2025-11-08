@@ -4,10 +4,10 @@ use App\Filament\Resources\States\Pages\CreateState;
 use App\Filament\Resources\States\Pages\EditState;
 use App\Filament\Resources\States\Pages\ListStates;
 use App\Filament\Resources\States\Pages\ViewState;
-use App\Models\State;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Infrastructure\State\Persistence\Eloquent\StateModel;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 
@@ -23,9 +23,9 @@ beforeEach(function () {
 });
 
 it('lists states and supports search', function () {
-    $states = State::factory()->count(5)->create();
+    $states = StateModel::factory()->count(5)->create();
 
-    /** @var State $first */
+    /** @var StateModel $first */
     $first = $states->first();
 
     Livewire::test(ListStates::class)
@@ -53,7 +53,7 @@ it('creates a state from the create page', function () {
 });
 
 it('views a state on the view page', function () {
-    $state = State::factory()->create([
+    $state = StateModel::factory()->create([
         'code' => 'JHR',
         'name' => 'Johor',
     ]);
@@ -66,7 +66,7 @@ it('views a state on the view page', function () {
 });
 
 it('edits a state from the edit page', function () {
-    $state = State::factory()->create([
+    $state = StateModel::factory()->create([
         'code' => 'OLD',
         'name' => 'Old State',
     ]);
@@ -87,7 +87,7 @@ it('edits a state from the edit page', function () {
 });
 
 it('deletes a state via the view page header action', function () {
-    $state = State::factory()->create();
+    $state = StateModel::factory()->create();
 
     Livewire::test(ViewState::class, ['record' => $state->getKey()])
         ->callAction('delete')
@@ -99,7 +99,7 @@ it('deletes a state via the view page header action', function () {
 });
 
 it('bulk deletes states from the list page', function () {
-    $states = State::factory()->count(3)->create();
+    $states = StateModel::factory()->count(3)->create();
 
     Livewire::test(ListStates::class)
         ->callTableBulkAction('delete', $states);
@@ -112,7 +112,7 @@ it('bulk deletes states from the list page', function () {
 });
 
 it('validates unique code when creating a state', function () {
-    State::factory()->create([
+    StateModel::factory()->create([
         'code' => 'DUP',
         'name' => 'Duplicate',
     ]);
@@ -140,7 +140,7 @@ it('validates required fields when creating a state', function () {
 });
 
 it('deletes a state via the edit page header action', function () {
-    $state = State::factory()->create();
+    $state = StateModel::factory()->create();
 
     Livewire::test(EditState::class, ['record' => $state->getKey()])
         ->callAction('delete')
@@ -152,8 +152,8 @@ it('deletes a state via the edit page header action', function () {
 });
 
 it('validates unique code when editing a state', function () {
-    $existingState = State::factory()->create(['code' => 'EXISTING']);
-    $stateToEdit = State::factory()->create(['code' => 'EDIT']);
+    $existingState = StateModel::factory()->create(['code' => 'EXISTING']);
+    $stateToEdit = StateModel::factory()->create(['code' => 'EDIT']);
 
     Livewire::test(EditState::class, ['record' => $stateToEdit->getKey()])
         ->fillForm(['code' => 'EXISTING'])
@@ -162,7 +162,7 @@ it('validates unique code when editing a state', function () {
 });
 
 it('allows keeping the same code when editing a state', function () {
-    $state = State::factory()->create([
+    $state = StateModel::factory()->create([
         'code' => 'SAME',
         'name' => 'Same State',
     ]);
@@ -193,9 +193,9 @@ it('validates max length for code and name fields', function () {
 });
 
 it('searches states by code', function () {
-    $states = State::factory()->count(5)->create();
+    $states = StateModel::factory()->count(5)->create();
 
-    /** @var State $first */
+    /** @var StateModel $first */
     $first = $states->first();
 
     Livewire::test(ListStates::class)
@@ -206,21 +206,21 @@ it('searches states by code', function () {
 });
 
 it('sorts states by name in ascending order', function () {
-    State::factory()->create(['name' => 'Zebra State']);
-    State::factory()->create(['name' => 'Alpha State']);
-    State::factory()->create(['name' => 'Middle State']);
+    StateModel::factory()->create(['name' => 'Zebra State']);
+    StateModel::factory()->create(['name' => 'Alpha State']);
+    StateModel::factory()->create(['name' => 'Middle State']);
 
     Livewire::test(ListStates::class)
         ->sortTable('name')
-        ->assertCanSeeTableRecords(State::query()->orderBy('name')->get(), inOrder: true);
+        ->assertCanSeeTableRecords(StateModel::query()->orderBy('name')->get(), inOrder: true);
 });
 
 it('sorts states by code in descending order', function () {
-    State::factory()->create(['code' => 'AAA']);
-    State::factory()->create(['code' => 'ZZZ']);
-    State::factory()->create(['code' => 'MMM']);
+    StateModel::factory()->create(['code' => 'AAA']);
+    StateModel::factory()->create(['code' => 'ZZZ']);
+    StateModel::factory()->create(['code' => 'MMM']);
 
     Livewire::test(ListStates::class)
         ->sortTable('code', 'desc')
-        ->assertCanSeeTableRecords(State::query()->orderBy('code', 'desc')->get(), inOrder: true);
+        ->assertCanSeeTableRecords(StateModel::query()->orderBy('code', 'desc')->get(), inOrder: true);
 });

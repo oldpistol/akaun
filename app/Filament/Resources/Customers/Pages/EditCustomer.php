@@ -3,14 +3,11 @@
 namespace App\Filament\Resources\Customers\Pages;
 
 use App\Filament\Resources\Customers\CustomerResource;
-use Application\Customer\DTOs\UpdateCustomerDTO;
 use Application\Customer\UseCases\DeleteCustomerUseCase;
-use Application\Customer\UseCases\UpdateCustomerUseCase;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
-use Infrastructure\Customer\Mappers\CustomerMapper;
 use Infrastructure\Customer\Persistence\Eloquent\CustomerModel;
 
 class EditCustomer extends EditRecord
@@ -33,17 +30,19 @@ class EditCustomer extends EditRecord
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         /** @var CustomerModel $record */
-        $updateCustomerUseCase = app(UpdateCustomerUseCase::class);
 
-        // Convert form data to DTO
-        $dto = UpdateCustomerDTO::fromArray($data);
+        // Filament's repeater with relationship() handles addresses automatically
+        // We should not manually interfere with address handling
+        // Just update the customer fields directly on the Eloquent model
+        // to avoid the repository's save() method which deletes all addresses
 
-        // Execute use case - this updates the customer via the infrastructure layer
-        $domainCustomer = $updateCustomerUseCase->execute($record->id, $dto);
+        // Remove addresses from data as Filament handles them via the relationship
+        unset($data['addresses']);
 
-        // Convert domain entity back to Infrastructure Eloquent model
-        $mapper = app(CustomerMapper::class);
+        // Update the model directly
+        $record->fill($data);
+        $record->save();
 
-        return $mapper->toEloquent($domainCustomer);
+        return $record->fresh() ?? $record;
     }
 }

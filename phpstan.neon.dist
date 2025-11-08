@@ -14,12 +14,13 @@ parameters:
     excludePaths:
         - tests/Pest.php
         - tests/Feature/Infrastructure/Customer/Repositories/EloquentCustomerRepositoryTest.php
+        - tests/Feature/Infrastructure/State/Repositories/EloquentStateRepositoryTest.php
 
     ignoreErrors:
         # Mockery mocking issues in tests
-        - '#Parameter \#1 \$customerRepository of class .* constructor expects .*, Mockery\\MockInterface given#'
+        - '#Parameter \#1 \$(customerRepository|stateRepository) of class .* constructor expects .*, Mockery\\MockInterface given#'
         - '#Call to an undefined method Mockery\\ExpectationInterface\|Mockery\\HigherOrderMessage::(once|with|andReturn|andReturnUsing)\(\)#'
-        - '#Cannot call method (once|with|andReturn|andReturnUsing|format)\(\) on mixed#'
+        - '#Cannot call method (once|with|andReturn|andReturnUsing|andThrow|format)\(\) on mixed#'
         # Nullable timestamp handling in mapper tests
         - '#Cannot call method format\(\) on Carbon\\Carbon\|null#'
         - '#Cannot call method format\(\) on DateTimeImmutable\|null#'
