@@ -417,3 +417,67 @@ it('calculates totals correctly when creating invoice with items', function () {
         ->and($invoice->tax_total)->toBe('100.00')
         ->and($invoice->total)->toBe('1100.00');
 });
+
+it('requires payment details when status is Paid', function () {
+    $customer = CustomerModel::factory()->create();
+
+    Livewire::test(CreateInvoice::class)
+        ->fillForm([
+            'customer_id' => $customer->id,
+            'invoice_number' => 'INV-PAID-REQUIRED',
+            'status' => 'Paid',
+            'issued_at' => '2025-11-01',
+            'due_at' => '2025-12-01',
+            // Intentionally omit paid_at and payment_method_id
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['paid_at', 'payment_method_id']);
+});
+
+it('does not require payment details when status is not Paid', function () {
+    $customer = CustomerModel::factory()->create();
+
+    Livewire::test(CreateInvoice::class)
+        ->fillForm([
+            'customer_id' => $customer->id,
+            'invoice_number' => 'INV-DRAFT-NO-PAYMENT',
+            'status' => 'Draft',
+            'issued_at' => '2025-11-01',
+            'due_at' => '2025-12-01',
+            'items' => [],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors()
+        ->assertNotified()
+        ->assertRedirect();
+
+    assertDatabaseHas('invoices', [
+        'customer_id' => $customer->id,
+        'invoice_number' => 'INV-DRAFT-NO-PAYMENT',
+        'status' => 'Draft',
+    ]);
+});
+
+it('allows changing invoice status from Paid to Draft without payment details', function () {
+    $customer = CustomerModel::factory()->create();
+    $paymentMethod = \App\Models\PaymentMethod::factory()->create();
+
+    $invoice = InvoiceModel::factory()->paid()->create([
+        'customer_id' => $customer->id,
+        'invoice_number' => 'INV-PAID-TO-DRAFT',
+        'payment_method_id' => $paymentMethod->id,
+        'paid_at' => now(),
+    ]);
+
+    Livewire::test(EditInvoice::class, ['record' => $invoice->getKey()])
+        ->fillForm([
+            'status' => 'Draft',
+            // When changing to Draft, payment fields should not be required
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors()
+        ->assertNotified();
+
+    $invoice->refresh();
+    expect($invoice->status)->toBe(InvoiceStatus::Draft);
+});
