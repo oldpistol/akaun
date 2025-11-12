@@ -56,14 +56,14 @@ class InvoiceForm
                         Grid::make(2)->schema([
                             DateTimePicker::make('paid_at')
                                 ->label('Payment Date')
-                                ->required()
+                                ->required(fn (callable $get): bool => $get('status') === InvoiceStatus::Paid->value)
                                 ->default(now()),
                             Select::make('payment_method_id')
                                 ->label('Payment Method')
                                 ->relationship('paymentMethod', 'name', fn ($query) => $query->where('is_active', true)->orderBy('sort_order'))
                                 ->searchable()
                                 ->preload()
-                                ->required(),
+                                ->required(fn (callable $get): bool => $get('status') === InvoiceStatus::Paid->value),
                             TextInput::make('payment_reference')
                                 ->label('Payment Reference Number')
                                 ->maxLength(255)
