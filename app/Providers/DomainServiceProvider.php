@@ -69,7 +69,6 @@ class DomainServiceProvider extends ServiceProvider
         $this->app->bind(\Application\Invoice\UseCases\GetInvoiceUseCase::class);
         $this->app->bind(\Application\Invoice\UseCases\ListInvoicesUseCase::class);
         $this->app->bind(\Application\Invoice\UseCases\MarkInvoiceAsPaidUseCase::class);
-        $this->app->bind(\Application\Invoice\UseCases\GenerateInvoicePDFUseCase::class);
     }
 
     /**
