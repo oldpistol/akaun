@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Invoices\Tables;
 
 use App\Enums\InvoiceStatus;
-use Application\Invoice\UseCases\GenerateInvoicePDFUseCase;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -80,20 +79,14 @@ class InvoicesTable
                     Action::make('download_pdf')
                         ->label('Download PDF')
                         ->icon(Heroicon::OutlinedArrowDownTray)
-                        ->action(function ($record): mixed {
-                            $useCase = app(GenerateInvoicePDFUseCase::class);
-
-                            return $useCase->execute($record->uuid);
-                        })
+                        ->url(fn ($record): string => route('invoices.pdf.download', ['uuid' => $record->uuid]))
+                        ->openUrlInNewTab()
                         ->color('success'),
                     Action::make('view_pdf')
                         ->label('View PDF')
                         ->icon(Heroicon::OutlinedEye)
-                        ->action(function ($record): mixed {
-                            $useCase = app(GenerateInvoicePDFUseCase::class);
-
-                            return $useCase->stream($record->uuid);
-                        })
+                        ->url(fn ($record): string => route('invoices.pdf.view', ['uuid' => $record->uuid]))
+                        ->openUrlInNewTab()
                         ->color('info'),
                     EditAction::make(),
                     DeleteAction::make(),
