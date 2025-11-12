@@ -3,6 +3,7 @@
 namespace Infrastructure\Invoice\Persistence\Eloquent;
 
 use App\Enums\InvoiceStatus;
+use App\Models\PaymentMethod;
 use Database\Factories\InvoiceFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,6 +30,9 @@ class InvoiceModel extends Model
         'issued_at',
         'due_at',
         'paid_at',
+        'payment_method_id',
+        'payment_reference',
+        'payment_receipt_path',
         'subtotal',
         'tax_total',
         'total',
@@ -54,6 +58,14 @@ class InvoiceModel extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(CustomerModel::class);
+    }
+
+    /**
+     * @return BelongsTo<PaymentMethod, covariant self>
+     */
+    public function paymentMethod(): BelongsTo
+    {
+        return $this->belongsTo(PaymentMethod::class);
     }
 
     /**

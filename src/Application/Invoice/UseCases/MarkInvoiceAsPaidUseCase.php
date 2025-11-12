@@ -12,15 +12,19 @@ final readonly class MarkInvoiceAsPaidUseCase
         private InvoiceRepositoryInterface $invoiceRepository
     ) {}
 
-    public function execute(int $id, ?DateTimeImmutable $paidAt = null): bool
-    {
+    public function execute(
+        int $id,
+        ?DateTimeImmutable $paidAt = null,
+        ?string $paymentMethod = null,
+        ?string $paymentReference = null
+    ): bool {
         $invoice = $this->invoiceRepository->findById($id);
 
         if (! $invoice) {
             throw InvoiceNotFoundException::withId($id);
         }
 
-        $invoice->markAsPaid($paidAt);
+        $invoice->markAsPaid($paidAt, $paymentMethod, $paymentReference);
 
         return $this->invoiceRepository->save($invoice) !== null;
     }

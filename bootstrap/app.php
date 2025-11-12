@@ -14,5 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo('admin/login');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (Domain\Invoice\Exceptions\InvoiceNotFoundException $e) {
+            abort(404, $e->getMessage());
+        });
     })->create();

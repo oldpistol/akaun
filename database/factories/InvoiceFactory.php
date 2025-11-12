@@ -95,9 +95,15 @@ class InvoiceFactory extends Factory
         return $this->state(function (array $attributes) {
             $paidAt = fake()->dateTimeBetween($attributes['issued_at'], 'now');
 
+            // Try to use an existing payment method, otherwise create one
+            $paymentMethod = \App\Models\PaymentMethod::inRandomOrder()->first()
+                ?? \App\Models\PaymentMethod::factory()->create();
+
             return [
                 'status' => InvoiceStatus::Paid,
                 'paid_at' => $paidAt,
+                'payment_method_id' => $paymentMethod->id,
+                'payment_reference' => fake()->optional()->regexify('[A-Z0-9]{10}'),
             ];
         });
     }

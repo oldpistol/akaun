@@ -24,6 +24,8 @@ final class Invoice
         private DateTimeImmutable $issuedAt,
         private DateTimeImmutable $dueAt,
         private ?DateTimeImmutable $paidAt,
+        private ?string $paymentMethod,
+        private ?string $paymentReference,
         private Money $subtotal,
         private Money $taxTotal,
         private Money $total,
@@ -50,6 +52,8 @@ final class Invoice
             issuedAt: $issuedAt,
             dueAt: $dueAt,
             paidAt: null,
+            paymentMethod: null,
+            paymentReference: null,
             subtotal: Money::fromAmount('0.00'),
             taxTotal: Money::fromAmount('0.00'),
             total: Money::fromAmount('0.00'),
@@ -98,6 +102,16 @@ final class Invoice
     public function paidAt(): ?DateTimeImmutable
     {
         return $this->paidAt;
+    }
+
+    public function paymentMethod(): ?string
+    {
+        return $this->paymentMethod;
+    }
+
+    public function paymentReference(): ?string
+    {
+        return $this->paymentReference;
     }
 
     public function subtotal(): Money
@@ -169,14 +183,19 @@ final class Invoice
         $this->touch();
     }
 
-    public function markAsPaid(?DateTimeImmutable $paidAt = null): void
-    {
+    public function markAsPaid(
+        ?DateTimeImmutable $paidAt = null,
+        ?string $paymentMethod = null,
+        ?string $paymentReference = null
+    ): void {
         if ($this->status === InvoiceStatus::Paid) {
             throw InvoiceAlreadyPaidException::alreadyPaid();
         }
 
         $this->status = InvoiceStatus::Paid;
         $this->paidAt = $paidAt ?? new DateTimeImmutable;
+        $this->paymentMethod = $paymentMethod;
+        $this->paymentReference = $paymentReference;
         $this->touch();
     }
 

@@ -309,3 +309,70 @@ it('correctly determines if invoice is overdue', function () {
     expect($overdueInvoice->isOverdue())->toBeTrue()
         ->and($currentInvoice->isOverdue())->toBeFalse();
 });
+
+it('initializes payment fields as null when creating invoice', function () {
+    $invoice = Invoice::create(
+        customerId: 1,
+        invoiceNumber: InvoiceNumber::fromString('INV-202511-0001'),
+        issuedAt: new DateTimeImmutable('2025-11-01'),
+        dueAt: new DateTimeImmutable('2025-12-01'),
+    );
+
+    expect($invoice->paymentMethod())->toBeNull()
+        ->and($invoice->paymentReference())->toBeNull()
+        ->and($invoice->paidAt())->toBeNull();
+});
+
+it('can mark invoice as paid with payment details', function () {
+    $invoice = Invoice::create(
+        customerId: 1,
+        invoiceNumber: InvoiceNumber::fromString('INV-202511-0001'),
+        issuedAt: new DateTimeImmutable('2025-11-01'),
+        dueAt: new DateTimeImmutable('2025-12-01'),
+    );
+
+    $paidAt = new DateTimeImmutable('2025-11-15');
+    $invoice->markAsPaid($paidAt, 'Credit Card', 'TXN-123456');
+
+    expect($invoice->status())->toBe(InvoiceStatus::Paid)
+        ->and($invoice->isPaid())->toBeTrue()
+        ->and($invoice->paidAt()?->format('Y-m-d'))->toBe('2025-11-15')
+        ->and($invoice->paymentMethod())->toBe('Credit Card')
+        ->and($invoice->paymentReference())->toBe('TXN-123456');
+});
+
+it('uses current datetime when marking as paid without payment date', function () {
+    $invoice = Invoice::create(
+        customerId: 1,
+        invoiceNumber: InvoiceNumber::fromString('INV-202511-0001'),
+        issuedAt: new DateTimeImmutable('2025-11-01'),
+        dueAt: new DateTimeImmutable('2025-12-01'),
+    );
+
+    $before = new DateTimeImmutable;
+    $invoice->markAsPaid(null, 'Bank Transfer', 'REF-789');
+    $after = new DateTimeImmutable;
+
+    expect($invoice->paidAt())->not->toBeNull()
+        ->and($invoice->paidAt() >= $before)->toBeTrue()
+        ->and($invoice->paidAt() <= $after)->toBeTrue()
+        ->and($invoice->paymentMethod())->toBe('Bank Transfer')
+        ->and($invoice->paymentReference())->toBe('REF-789');
+});
+
+it('can mark invoice as paid without payment method and reference', function () {
+    $invoice = Invoice::create(
+        customerId: 1,
+        invoiceNumber: InvoiceNumber::fromString('INV-202511-0001'),
+        issuedAt: new DateTimeImmutable('2025-11-01'),
+        dueAt: new DateTimeImmutable('2025-12-01'),
+    );
+
+    $paidAt = new DateTimeImmutable('2025-11-15');
+    $invoice->markAsPaid($paidAt);
+
+    expect($invoice->status())->toBe(InvoiceStatus::Paid)
+        ->and($invoice->paidAt()?->format('Y-m-d'))->toBe('2025-11-15')
+        ->and($invoice->paymentMethod())->toBeNull()
+        ->and($invoice->paymentReference())->toBeNull();
+});

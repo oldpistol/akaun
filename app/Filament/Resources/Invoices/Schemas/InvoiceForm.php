@@ -6,6 +6,7 @@ namespace App\Filament\Resources\Invoices\Schemas;
 
 use App\Enums\InvoiceStatus;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -45,8 +46,37 @@ class InvoiceForm
                             DateTimePicker::make('due_at')
                                 ->required()
                                 ->default(now()->addDays(30)),
+                        ]),
+                    ]),
+
+                Section::make('Payment Details')
+                    ->columnSpan(2)
+                    ->visible(fn (callable $get): bool => $get('status') === InvoiceStatus::Paid->value)
+                    ->schema([
+                        Grid::make(2)->schema([
                             DateTimePicker::make('paid_at')
-                                ->visible(fn (callable $get): bool => $get('status') === InvoiceStatus::Paid->value),
+                                ->label('Payment Date')
+                                ->required()
+                                ->default(now()),
+                            Select::make('payment_method_id')
+                                ->label('Payment Method')
+                                ->relationship('paymentMethod', 'name', fn ($query) => $query->where('is_active', true)->orderBy('sort_order'))
+                                ->searchable()
+                                ->preload()
+                                ->required(),
+                            TextInput::make('payment_reference')
+                                ->label('Payment Reference Number')
+                                ->maxLength(255)
+                                ->placeholder('e.g., Transaction ID, Check Number'),
+                            FileUpload::make('payment_receipt_path')
+                                ->label('Payment Receipt/Document')
+                                ->disk('private')
+                                ->directory('payment-receipts')
+                                ->acceptedFileTypes(['application/pdf', 'image/*'])
+                                ->maxSize(5120)
+                                ->downloadable()
+                                ->openable()
+                                ->columnSpanFull(),
                         ]),
                     ]),
 

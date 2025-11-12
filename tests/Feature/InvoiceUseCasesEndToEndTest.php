@@ -228,6 +228,79 @@ describe('MarkInvoiceAsPaidUseCase', function () {
         expect($paidAtDate->format('Y-m-d'))->toBe('2025-11-10');
     });
 
+    it('marks invoice as paid with payment method and reference', function () {
+        $invoice = InvoiceModel::factory()->sent()->create();
+
+        $repository = app(EloquentInvoiceRepository::class);
+        $useCase = new MarkInvoiceAsPaidUseCase($repository);
+
+        $paidAt = new DateTimeImmutable('2025-11-15');
+        $result = $useCase->execute(
+            $invoice->id,
+            $paidAt,
+            'Credit Card',
+            'TXN-123456789'
+        );
+
+        expect($result)->toBeTrue();
+
+        $updated = InvoiceModel::find($invoice->id);
+        expect($updated)->not->toBeNull();
+        expect($updated?->status)->toBe(InvoiceStatus::Paid);
+        expect($updated?->paymentMethod?->name)->toBe('Credit Card');
+        expect($updated?->payment_reference)->toBe('TXN-123456789');
+
+        assert($updated !== null);
+        /** @var \Illuminate\Support\Carbon $paidAtDate */
+        $paidAtDate = $updated->paid_at;
+        assert($paidAtDate !== null);
+        expect($paidAtDate->format('Y-m-d'))->toBe('2025-11-15');
+    });
+
+    it('marks invoice as paid with only payment method', function () {
+        $invoice = InvoiceModel::factory()->sent()->create();
+
+        $repository = app(EloquentInvoiceRepository::class);
+        $useCase = new MarkInvoiceAsPaidUseCase($repository);
+
+        $result = $useCase->execute(
+            $invoice->id,
+            null,
+            'Bank Transfer'
+        );
+
+        expect($result)->toBeTrue();
+
+        $updated = InvoiceModel::find($invoice->id);
+        expect($updated)->not->toBeNull();
+        expect($updated?->paymentMethod?->name)->toBe('Bank Transfer');
+        expect($updated?->payment_reference)->toBeNull();
+    });
+
+    it('stores payment details in domain entity and persists correctly', function () {
+        $invoice = InvoiceModel::factory()->sent()->create();
+
+        $repository = app(EloquentInvoiceRepository::class);
+        $useCase = new MarkInvoiceAsPaidUseCase($repository);
+        $getUseCase = new GetInvoiceUseCase($repository);
+
+        $paidAt = new DateTimeImmutable('2025-11-20');
+        $useCase->execute(
+            $invoice->id,
+            $paidAt,
+            'Cash',
+            'RECEIPT-001'
+        );
+
+        // Retrieve the domain entity and verify payment details
+        $domainInvoice = $getUseCase->execute($invoice->id);
+
+        expect($domainInvoice->isPaid())->toBeTrue()
+            ->and($domainInvoice->paymentMethod())->toBe('Cash')
+            ->and($domainInvoice->paymentReference())->toBe('RECEIPT-001')
+            ->and($domainInvoice->paidAt()?->format('Y-m-d'))->toBe('2025-11-20');
+    });
+
     it('throws exception when marking non-existent invoice as paid', function () {
         $repository = app(EloquentInvoiceRepository::class);
         $useCase = new MarkInvoiceAsPaidUseCase($repository);
