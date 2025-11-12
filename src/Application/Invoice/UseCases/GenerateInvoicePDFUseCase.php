@@ -3,6 +3,7 @@
 namespace Application\Invoice\UseCases;
 
 use Barryvdh\DomPDF\Facade\Pdf;
+use Domain\Customer\ValueObjects\Uuid;
 use Domain\Invoice\Repositories\InvoiceRepositoryInterface;
 use Illuminate\Http\Response;
 
@@ -14,7 +15,7 @@ class GenerateInvoicePDFUseCase
 
     public function execute(string $invoiceUuid): Response
     {
-        $invoice = $this->invoiceRepository->findByUuid($invoiceUuid);
+        $invoice = $this->invoiceRepository->findByUuid(Uuid::fromString($invoiceUuid));
 
         $invoiceModel = $invoice->toPersistence();
         $invoiceModel->load(['customer.primaryAddress.state', 'items']);
@@ -37,7 +38,7 @@ class GenerateInvoicePDFUseCase
 
     public function stream(string $invoiceUuid): Response
     {
-        $invoice = $this->invoiceRepository->findByUuid($invoiceUuid);
+        $invoice = $this->invoiceRepository->findByUuid(Uuid::fromString($invoiceUuid));
 
         $invoiceModel = $invoice->toPersistence();
         $invoiceModel->load(['customer.primaryAddress.state', 'items']);
