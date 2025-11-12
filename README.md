@@ -1,58 +1,210 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Akaun
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A modern invoicing and quotation management system built with Laravel, Filament, and Domain-Driven Design (DDD) architecture.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Customer Management
+- Complete CRUD operations for customers (Individual & Business)
+- Support for multiple customer types (Individual, Business)
+- Risk level assessment (Low, Medium, High)
+- Credit limit tracking
+- Multiple addresses per customer
+- Soft delete support
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Invoice Management
+- Full invoice lifecycle management (Draft → Sent → Paid/Overdue → Cancelled/Void)
+- Auto-generated invoice numbers
+- Invoice items with quantity, unit price, and tax calculations
+- PDF generation for invoices
+- Payment tracking with:
+  - Payment methods (database-backed)
+  - Payment references
+  - Payment receipts (file upload)
+  - Payment date tracking
+- Receipt PDF generation
+- Soft delete support
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Quotation Management
+- Complete quotation workflow (Draft → Sent → Accepted/Rejected/Expired)
+- Auto-generated quotation numbers
+- Line items with discount support
+- PDF generation for quotations
+- Convert accepted quotations to invoices
+- Expiration date tracking
 
-## Learning Laravel
+### Payment Methods
+- Pre-configured payment methods:
+  - Bank Transfer
+  - Cash
+  - Credit Card
+  - Debit Card
+  - Cheque
+  - E-Wallet
+- Active/inactive status management
+- Custom sort ordering
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### State Management
+- Malaysian states management
+- Unique state codes
+- Soft delete support
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Technology Stack
 
-## Laravel Sponsors
+- **Framework**: Laravel 12
+- **Admin Panel**: Filament 4
+- **Frontend**: Livewire 3 + Alpine.js + Tailwind CSS 4
+- **Architecture**: Domain-Driven Design (DDD)
+- **Testing**: Pest 4
+- **Code Quality**: Laravel Pint
+- **Database**: MySQL/MariaDB
+- **PDF Generation**: Barryvdh/Laravel-DomPDF
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Architecture
 
-### Premium Partners
+This application follows Domain-Driven Design principles with a clear separation of concerns:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```
+src/
+├── Domain/           # Business logic and entities
+│   ├── Customer/
+│   ├── Invoice/
+│   ├── Quotation/
+│   └── State/
+├── Application/      # Use cases and DTOs
+│   ├── Customer/
+│   ├── Invoice/
+│   ├── Quotation/
+│   └── State/
+└── Infrastructure/   # Persistence and external services
+    ├── Customer/
+    ├── Invoice/
+    ├── Quotation/
+    └── State/
+```
 
-## Contributing
+### Key Architectural Patterns
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- **Domain Layer**: Pure PHP entities with business rules
+- **Application Layer**: Use cases orchestrating domain operations
+- **Infrastructure Layer**: Eloquent models, repositories, and mappers
+- **Presentation Layer**: Filament resources and components
 
-## Code of Conduct
+## Requirements
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- PHP 8.4+
+- Composer
+- Node.js & NPM
+- MySQL 8.0+ or MariaDB 10.3+
 
-## Security Vulnerabilities
+## Installation
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. Clone the repository:
+```bash
+git clone https://github.com/oldpistol/akaun.git
+cd akaun
+```
+
+2. Install dependencies:
+```bash
+composer install
+npm install
+```
+
+3. Configure environment:
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+4. Configure your database in `.env`:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=akaun
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+5. Run migrations and seeders:
+```bash
+php artisan migrate --seed
+```
+
+6. Build assets:
+```bash
+npm run build
+```
+
+7. Create an admin user:
+```bash
+php artisan make:filament-user
+```
+
+8. Start the development server:
+```bash
+php artisan serve
+```
+
+Visit `http://localhost:8000/admin` to access the admin panel.
+
+## Testing
+
+Run the test suite:
+```bash
+php artisan test
+```
+
+Run specific test files:
+```bash
+php artisan test tests/Feature/FilamentInvoicesResourceTest.php
+```
+
+Filter tests by name:
+```bash
+php artisan test --filter="it creates an invoice"
+```
+
+## Code Quality
+
+Format code with Laravel Pint:
+```bash
+vendor/bin/pint
+```
+
+## Features in Detail
+
+### Invoice Workflow
+
+1. **Draft**: Initial state, can be edited freely
+2. **Sent**: Invoice sent to customer, limited editing
+3. **Paid**: Payment received and recorded
+4. **Overdue**: Past due date without payment
+5. **Cancelled**: Cancelled before payment
+6. **Void**: Voided after creation
+
+### Payment Tracking
+
+Each paid invoice can track:
+- Payment date
+- Payment method (from predefined list)
+- Payment reference number
+- Payment receipt document (PDF/Image upload)
+
+### PDF Generation
+
+- **Invoices**: Download or view in browser
+- **Receipts**: Generated for paid invoices with payment details
+- **Quotations**: Download or view in browser
+
+### Domain-Driven Design
+
+The application maintains a clean separation between:
+- **Domain entities**: Business logic in pure PHP
+- **Eloquent models**: Database persistence
+- **Mappers**: Conversion between domain and infrastructure
+- **Repositories**: Data access abstraction
 
 ## License
 

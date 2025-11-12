@@ -112,7 +112,7 @@ class InvoicesTable
                             $useCase = app(MarkInvoiceAsPaidUseCase::class);
                             $useCase->execute(
                                 id: $record->id,
-                                paidAt: new \DateTimeImmutable($data['paid_at']),
+                                paidAt: new \DateTimeImmutable((string) $data['paid_at']),
                                 paymentMethod: $data['payment_method'],
                                 paymentReference: $data['payment_reference'] ?? null
                             );

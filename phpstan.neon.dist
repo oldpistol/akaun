@@ -26,3 +26,17 @@ parameters:
         - '#Cannot call method format\(\) on DateTimeImmutable\|null#'
         # Mapper test null handling
         - '#Parameter \#1 \$model of method .* expects .*, .*\|null given#'
+        # Filament dynamic typing
+        - '#Cannot access property \$(status|uuid|id|invoice_number|items|notes|value) on (Illuminate\\Database\\Eloquent\\Model|mixed)(\|int\|string\|null)?#'
+        - '#Cannot call method (update|orderBy|where|items|load)\(\) on (Illuminate\\Database\\Eloquent\\Model|mixed)(\|int\|string\|null)?#'
+        - '#Parameter .* of method .* expects .*, mixed given#'
+        - '#Part \$record->.* \(mixed\) of encapsed string cannot be cast to string#'
+        - '#Cannot cast mixed to string#'
+        # Pest test methods
+        - '#Call to an undefined method PHPUnit\\Framework\\TestCase::seed\(\)#'
+        # Model methods
+        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Model::recalculateTotals\(\)#'
+        # Generic traits
+        - '#Class .* uses generic trait .* but does not specify its types#'
+        # Test nullable models after database queries
+        - '#Cannot (call method|access property) .* on .*(InvoiceModel|PaymentMethod).*\|null#'

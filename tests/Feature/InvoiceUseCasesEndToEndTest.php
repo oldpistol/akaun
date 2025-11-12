@@ -10,7 +10,6 @@ use Application\Invoice\UseCases\GetInvoiceUseCase;
 use Application\Invoice\UseCases\ListInvoicesUseCase;
 use Application\Invoice\UseCases\MarkInvoiceAsPaidUseCase;
 use Application\Invoice\UseCases\UpdateInvoiceUseCase;
-use DateTimeImmutable;
 use Domain\Invoice\Entities\Invoice;
 use Domain\Invoice\Exceptions\InvoiceNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;

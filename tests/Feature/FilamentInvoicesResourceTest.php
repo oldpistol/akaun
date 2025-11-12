@@ -145,25 +145,41 @@ it('edits an invoice from the edit page', function () {
 });
 
 it('preserves invoice items when editing invoice without modifying items', function () {
-    $invoice = InvoiceModel::factory()->create([
+    $invoice = InvoiceModel::factory()->draft()->create([
         'invoice_number' => 'INV-202511-PRESERVE',
     ]);
+
+    // Explicitly refresh to ensure all relationships are loaded
+    $invoice->refresh()->load('items');
 
     // Get the initial item count
     $initialItemCount = $invoice->items()->count();
     expect($initialItemCount)->toBeGreaterThan(0);
 
-    $initialItem = $invoice->items()->first();
+    // Store initial item data for comparison
+    $initialItems = $invoice->items->map(fn ($item) => [
+        'description' => $item->description,
+        'quantity' => $item->quantity,
+        'unit_price' => $item->unit_price,
+    ])->toArray();
 
-    // Edit the invoice without touching items
     Livewire::test(EditInvoice::class, ['record' => $invoice->getKey()])
+        ->assertFormSet([
+            'invoice_number' => 'INV-202511-PRESERVE',
+        ])
         ->fillForm([
             'notes' => 'Updated invoice notes',
         ])
         ->call('save')
-        ->assertNotified();
+        ->assertNotified()
+        ->assertHasNoFormErrors();
 
-    $invoice->refresh();
+    // Refresh from database
+    $invoice = InvoiceModel::find($invoice->id);
+
+    expect($invoice)->not->toBeNull();
+
+    $invoice->load('items');
 
     // Verify invoice was updated
     expect($invoice->notes)->toBe('Updated invoice notes');
@@ -171,16 +187,22 @@ it('preserves invoice items when editing invoice without modifying items', funct
     // Verify items were preserved
     expect($invoice->items()->count())->toBe($initialItemCount);
 
-    $firstItem = $invoice->items()->first();
-    expect($firstItem?->description)->toBe($initialItem?->description);
+    // Verify first item matches
+    $currentItems = $invoice->items->map(fn ($item) => [
+        'description' => $item->description,
+        'quantity' => $item->quantity,
+        'unit_price' => $item->unit_price,
+    ])->toArray();
+
+    expect($currentItems)->toEqual($initialItems);
 });
 
 it('updates invoice items when editing', function () {
-    $invoice = InvoiceModel::factory()->create();
+    $invoice = InvoiceModel::factory()->draft()->create();
 
     Livewire::test(EditInvoice::class, ['record' => $invoice->getKey()])
         ->set('data.items', [
-            'item-1' => [
+            [
                 'description' => 'Updated Product',
                 'quantity' => 20,
                 'unit_price' => '250.00',
@@ -188,7 +210,8 @@ it('updates invoice items when editing', function () {
             ],
         ])
         ->call('save')
-        ->assertNotified();
+        ->assertNotified()
+        ->assertHasNoFormErrors();
 
     $invoice->refresh();
 

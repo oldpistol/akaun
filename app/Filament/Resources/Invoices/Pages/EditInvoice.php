@@ -13,10 +13,24 @@ use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Schemas\Components\Grid;
 use Filament\Support\Icons\Heroicon;
+use Infrastructure\Invoice\Persistence\Eloquent\InvoiceModel;
 
+/**
+ * @property InvoiceModel $record
+ */
 class EditInvoice extends EditRecord
 {
     protected static string $resource = InvoiceResource::class;
+
+    protected function handleRecordUpdate(\Illuminate\Database\Eloquent\Model $record, array $data): \Illuminate\Database\Eloquent\Model
+    {
+        $record->update($data);
+
+        // Recalculate invoice totals based on items
+        $record->recalculateTotals();
+
+        return $record;
+    }
 
     protected function getHeaderActions(): array
     {
