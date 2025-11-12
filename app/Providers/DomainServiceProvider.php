@@ -69,6 +69,31 @@ class DomainServiceProvider extends ServiceProvider
         $this->app->bind(\Application\Invoice\UseCases\GetInvoiceUseCase::class);
         $this->app->bind(\Application\Invoice\UseCases\ListInvoicesUseCase::class);
         $this->app->bind(\Application\Invoice\UseCases\MarkInvoiceAsPaidUseCase::class);
+
+        // Bind Quotation Repository Interface to Eloquent Implementation
+        $this->app->bind(
+            \Domain\Quotation\Repositories\QuotationRepositoryInterface::class,
+            \Infrastructure\Quotation\Repositories\EloquentQuotationRepository::class
+        );
+
+        // Bind Quotation Mappers
+        $this->app->singleton(\Infrastructure\Quotation\Mappers\QuotationItemMapper::class);
+        $this->app->singleton(\Infrastructure\Quotation\Mappers\QuotationMapper::class, function (\Illuminate\Contracts\Foundation\Application $app) {
+            return new \Infrastructure\Quotation\Mappers\QuotationMapper(
+                $app->make(\Infrastructure\Quotation\Mappers\QuotationItemMapper::class)
+            );
+        });
+
+        // Bind Quotation Use Cases
+        $this->app->bind(\Application\Quotation\UseCases\CreateQuotationUseCase::class);
+        $this->app->bind(\Application\Quotation\UseCases\UpdateQuotationUseCase::class);
+        $this->app->bind(\Application\Quotation\UseCases\DeleteQuotationUseCase::class);
+        $this->app->bind(\Application\Quotation\UseCases\GetQuotationUseCase::class);
+        $this->app->bind(\Application\Quotation\UseCases\ListQuotationsUseCase::class);
+        $this->app->bind(\Application\Quotation\UseCases\AcceptQuotationUseCase::class);
+        $this->app->bind(\Application\Quotation\UseCases\DeclineQuotationUseCase::class);
+        $this->app->bind(\Application\Quotation\UseCases\ConvertQuotationToInvoiceUseCase::class);
+        $this->app->bind(\Application\Quotation\UseCases\GenerateQuotationPDFUseCase::class);
     }
 
     /**
