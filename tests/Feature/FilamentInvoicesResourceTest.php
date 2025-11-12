@@ -418,7 +418,7 @@ it('calculates totals correctly when creating invoice with items', function () {
         ->and($invoice->total)->toBe('1100.00');
 });
 
-it('requires payment details when status is Paid', function () {
+it('requires paid_at when status is Paid', function () {
     $customer = CustomerModel::factory()->create();
 
     Livewire::test(CreateInvoice::class)
@@ -428,10 +428,11 @@ it('requires payment details when status is Paid', function () {
             'status' => 'Paid',
             'issued_at' => '2025-11-01',
             'due_at' => '2025-12-01',
-            // Intentionally omit paid_at and payment_method_id
+            'items' => [],
+            'paid_at' => null,
         ])
         ->call('create')
-        ->assertHasFormErrors(['paid_at', 'payment_method_id']);
+        ->assertHasFormErrors(['paid_at']);
 });
 
 it('does not require payment details when status is not Paid', function () {

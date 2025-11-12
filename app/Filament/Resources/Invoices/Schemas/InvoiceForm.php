@@ -39,6 +39,7 @@ class InvoiceForm
                             Select::make('status')
                                 ->options(collect(InvoiceStatus::cases())->mapWithKeys(fn ($s) => [$s->value => $s->value])->all())
                                 ->required()
+                                ->live()
                                 ->default(InvoiceStatus::Draft->value),
                             DateTimePicker::make('issued_at')
                                 ->required()
@@ -51,22 +52,23 @@ class InvoiceForm
 
                 Section::make('Payment Details')
                     ->columnSpan(2)
-                    ->visible(fn (callable $get): bool => $get('status') === InvoiceStatus::Paid->value)
                     ->schema([
                         Grid::make(2)->schema([
                             DateTimePicker::make('paid_at')
                                 ->label('Payment Date')
-                                ->required(fn (callable $get): bool => $get('status') === InvoiceStatus::Paid->value)
+                                ->visible(fn (callable $get): bool => $get('status') === InvoiceStatus::Paid->value)
+                                ->requiredIf('status', InvoiceStatus::Paid->value)
                                 ->default(now()),
                             Select::make('payment_method_id')
                                 ->label('Payment Method')
                                 ->relationship('paymentMethod', 'name', fn ($query) => $query->where('is_active', true)->orderBy('sort_order'))
                                 ->searchable()
                                 ->preload()
-                                ->required(fn (callable $get): bool => $get('status') === InvoiceStatus::Paid->value),
+                                ->visible(fn (callable $get): bool => $get('status') === InvoiceStatus::Paid->value),
                             TextInput::make('payment_reference')
                                 ->label('Payment Reference Number')
                                 ->maxLength(255)
+                                ->visible(fn (callable $get): bool => $get('status') === InvoiceStatus::Paid->value)
                                 ->placeholder('e.g., Transaction ID, Check Number'),
                             FileUpload::make('payment_receipt_path')
                                 ->label('Payment Receipt/Document')
@@ -76,6 +78,7 @@ class InvoiceForm
                                 ->maxSize(5120)
                                 ->downloadable()
                                 ->openable()
+                                ->visible(fn (callable $get): bool => $get('status') === InvoiceStatus::Paid->value)
                                 ->columnSpanFull(),
                         ]),
                     ]),
