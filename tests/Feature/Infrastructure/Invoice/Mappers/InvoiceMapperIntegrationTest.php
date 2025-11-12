@@ -2,7 +2,6 @@
 
 use App\Enums\InvoiceStatus;
 use Database\Seeders\PaymentMethodsTableSeeder;
-use DateTimeImmutable;
 use Domain\Invoice\Entities\Invoice;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Infrastructure\Invoice\Mappers\InvoiceMapper;
@@ -40,6 +39,8 @@ it('maps payment fields from domain to eloquent model', function () {
 
 it('maps payment fields from eloquent to domain entity', function () {
     $paymentMethod = \App\Models\PaymentMethod::where('name', 'Bank Transfer')->first();
+
+    expect($paymentMethod)->not->toBeNull();
 
     $invoice = InvoiceModel::factory()->paid()->create([
         'paid_at' => new DateTimeImmutable('2025-11-20'),
@@ -101,6 +102,8 @@ it('persists payment details through full save cycle', function () {
 
 it('maps partial payment details correctly', function () {
     $paymentMethod = \App\Models\PaymentMethod::where('name', 'Cheque')->first();
+
+    expect($paymentMethod)->not->toBeNull();
 
     $invoice = InvoiceModel::factory()->paid()->create([
         'payment_method_id' => $paymentMethod->id,
