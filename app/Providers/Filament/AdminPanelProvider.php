@@ -30,6 +30,8 @@ class AdminPanelProvider extends PanelProvider
             ->spa(hasPrefetching: true)
             ->font('Be Vietnam Pro')
             ->sidebarCollapsibleOnDesktop()
+            ->brandLogo(fn () => view('components.logo', ['variant' => 'icon', 'size' => 'md']))
+            ->brandLogoHeight('3rem')
             ->colors([
                 'primary' => Color::Stone,
             ])
