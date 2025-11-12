@@ -47,6 +47,29 @@ class DomainServiceProvider extends ServiceProvider
         $this->app->bind(\Application\State\UseCases\DeleteStateUseCase::class);
         $this->app->bind(\Application\State\UseCases\GetStateUseCase::class);
         $this->app->bind(\Application\State\UseCases\ListStatesUseCase::class);
+
+        // Bind Invoice Repository Interface to Eloquent Implementation
+        $this->app->bind(
+            \Domain\Invoice\Repositories\InvoiceRepositoryInterface::class,
+            \Infrastructure\Invoice\Repositories\EloquentInvoiceRepository::class
+        );
+
+        // Bind Invoice Mappers
+        $this->app->singleton(\Infrastructure\Invoice\Mappers\InvoiceItemMapper::class);
+        $this->app->singleton(\Infrastructure\Invoice\Mappers\InvoiceMapper::class, function (\Illuminate\Contracts\Foundation\Application $app) {
+            return new \Infrastructure\Invoice\Mappers\InvoiceMapper(
+                $app->make(\Infrastructure\Invoice\Mappers\InvoiceItemMapper::class)
+            );
+        });
+
+        // Bind Invoice Use Cases
+        $this->app->bind(\Application\Invoice\UseCases\CreateInvoiceUseCase::class);
+        $this->app->bind(\Application\Invoice\UseCases\UpdateInvoiceUseCase::class);
+        $this->app->bind(\Application\Invoice\UseCases\DeleteInvoiceUseCase::class);
+        $this->app->bind(\Application\Invoice\UseCases\GetInvoiceUseCase::class);
+        $this->app->bind(\Application\Invoice\UseCases\ListInvoicesUseCase::class);
+        $this->app->bind(\Application\Invoice\UseCases\MarkInvoiceAsPaidUseCase::class);
+        $this->app->bind(\Application\Invoice\UseCases\GenerateInvoicePDFUseCase::class);
     }
 
     /**
