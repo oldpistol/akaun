@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Invoices\Tables;
 
 use App\Enums\InvoiceStatus;
+use Application\Invoice\UseCases\GenerateInvoicePDFUseCase;
+use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -12,6 +14,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -74,6 +77,24 @@ class InvoicesTable
             ])
             ->recordActions([
                 ActionGroup::make([
+                    Action::make('download_pdf')
+                        ->label('Download PDF')
+                        ->icon(Heroicon::OutlinedArrowDownTray)
+                        ->action(function ($record): mixed {
+                            $useCase = app(GenerateInvoicePDFUseCase::class);
+
+                            return $useCase->execute($record->uuid);
+                        })
+                        ->color('success'),
+                    Action::make('view_pdf')
+                        ->label('View PDF')
+                        ->icon(Heroicon::OutlinedEye)
+                        ->action(function ($record): mixed {
+                            $useCase = app(GenerateInvoicePDFUseCase::class);
+
+                            return $useCase->stream($record->uuid);
+                        })
+                        ->color('info'),
                     EditAction::make(),
                     DeleteAction::make(),
                     RestoreAction::make(),
