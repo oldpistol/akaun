@@ -2,6 +2,7 @@
 
 namespace Infrastructure\Invoice\Persistence\Eloquent;
 
+use Database\Factories\InvoiceItemFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -36,6 +37,11 @@ class InvoiceItemModel extends Model
     public function invoice(): BelongsTo
     {
         return $this->belongsTo(InvoiceModel::class);
+    }
+
+    protected static function newFactory(): InvoiceItemFactory
+    {
+        return InvoiceItemFactory::new();
     }
 
     protected static function booted(): void
