@@ -42,7 +42,7 @@ class InvoiceInfolist
                                 ->label('Payment Receipt')
                                 ->placeholder('-')
                                 ->formatStateUsing(fn ($state) => $state ? 'View Receipt' : '-')
-                                ->url(fn ($record) => $record->payment_receipt_path ? Storage::disk('private')->url($record->payment_receipt_path) : null, shouldOpenInNewTab: true),
+                                ->url(fn ($record) => $record->payment_receipt_path ? Storage::disk('local')->url($record->payment_receipt_path) : null, shouldOpenInNewTab: true),
                         ]),
                     ]),
                 Section::make('Invoice Items')

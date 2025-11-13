@@ -66,7 +66,7 @@ class InvoiceForm
                                 ->placeholder('e.g., Transaction ID, Check Number'),
                             FileUpload::make('payment_receipt_path')
                                 ->label('Payment Receipt/Document')
-                                ->disk('private')
+                                ->disk('local')
                                 ->directory('payment-receipts')
                                 ->acceptedFileTypes(['application/pdf', 'image/*'])
                                 ->maxSize(5120)
