@@ -59,23 +59,36 @@ class CustomerForm
                             ->reorderable(false)
                             ->minItems(1)
                             ->label('')
-                            ->itemLabel(function (array $state): ?string {
-                                /** @var string|null $label */
-                                $label = $state['label'] ?? null;
-
-                                return $label;
-                            })
                             ->schema([
-                                Grid::make(2)->schema([
-                                    TextInput::make('label')->maxLength(50),
-                                    TextInput::make('line1')->required()->maxLength(120),
-                                    TextInput::make('line2')->maxLength(120),
-                                    TextInput::make('city')->required()->maxLength(80),
-                                    TextInput::make('postcode')->required()->maxLength(10),
-                                    Select::make('state_id')->relationship('state', 'name')->searchable()->preload()->required(),
-                                    TextInput::make('country_code')->default('MY')->maxLength(2),
-                                    Toggle::make('is_primary')->label('Primary')->inline(false),
-                                ]),
+                                TextInput::make('label')
+                                    ->maxLength(50)
+                                    ->placeholder('e.g., Home, Office'),
+                                TextInput::make('line1')
+                                    ->required()
+                                    ->maxLength(120)
+                                    ->label('Address Line 1'),
+                                TextInput::make('line2')
+                                    ->maxLength(120)
+                                    ->label('Address Line 2'),
+                                TextInput::make('city')
+                                    ->required()
+                                    ->maxLength(80),
+                                TextInput::make('postcode')
+                                    ->required()
+                                    ->maxLength(10),
+                                Select::make('state_id')
+                                    ->relationship('state', 'name')
+                                    ->searchable()
+                                    ->preload()
+                                    ->required()
+                                    ->label('State'),
+                                TextInput::make('country_code')
+                                    ->default('MY')
+                                    ->maxLength(2)
+                                    ->label('Country'),
+                                Toggle::make('is_primary')
+                                    ->label('Primary')
+                                    ->inline(false),
                             ]),
                     ]),
             ]);
