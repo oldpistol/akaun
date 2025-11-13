@@ -5,6 +5,7 @@ use App\Filament\Resources\Invoices\Pages\CreateInvoice;
 use App\Filament\Resources\Invoices\Pages\EditInvoice;
 use App\Filament\Resources\Invoices\Pages\ListInvoices;
 use App\Filament\Resources\Invoices\Pages\ViewInvoice;
+use App\Models\PaymentMethod;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -462,7 +463,7 @@ it('does not require payment details when status is not Paid', function () {
 
 it('allows changing invoice status from Paid to Draft without payment details', function () {
     $customer = CustomerModel::factory()->create();
-    $paymentMethod = \App\Models\PaymentMethod::factory()->create();
+    $paymentMethod = PaymentMethod::factory()->create();
 
     $invoice = InvoiceModel::factory()->paid()->create([
         'customer_id' => $customer->id,
@@ -495,7 +496,7 @@ it('views an invoice on the view page', function () {
 });
 
 it('views invoice with payment details when paid', function () {
-    $paymentMethod = \App\Models\PaymentMethod::factory()->create(['name' => 'Bank Transfer']);
+    $paymentMethod = PaymentMethod::factory()->create(['name' => 'Bank Transfer']);
     $invoice = InvoiceModel::factory()->paid()->create([
         'invoice_number' => 'INV-PAID-VIEW',
         'payment_method_id' => $paymentMethod->id,
@@ -527,7 +528,7 @@ it('views invoice with items on the view page', function () {
 });
 
 it('can mark invoice as paid from view page', function () {
-    $paymentMethod = \App\Models\PaymentMethod::factory()->create();
+    $paymentMethod = PaymentMethod::factory()->create();
     $invoice = InvoiceModel::factory()->draft()->create();
 
     expect($invoice->status)->toBe(InvoiceStatus::Draft);
