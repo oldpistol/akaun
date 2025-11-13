@@ -89,36 +89,27 @@ class QuotationForm
                             ->relationship('items')
                             ->reorderable(false)
                             ->label('')
-                            ->itemLabel(function (array $state): string {
-                                /** @var string $description */
-                                $description = $state['description'] ?? '';
-
-                                return $description;
-                            })
                             ->schema([
-                                Grid::make(5)->schema([
-                                    TextInput::make('description')
-                                        ->required()
-                                        ->maxLength(255)
-                                        ->columnSpan(2),
-                                    TextInput::make('quantity')
-                                        ->required()
-                                        ->numeric()
-                                        ->minValue(1)
-                                        ->default(1),
-                                    TextInput::make('unit_price')
-                                        ->required()
-                                        ->numeric()
-                                        ->minValue(0)
-                                        ->prefix('RM'),
-                                    TextInput::make('tax_rate')
-                                        ->required()
-                                        ->numeric()
-                                        ->minValue(0)
-                                        ->maxValue(100)
-                                        ->default(0)
-                                        ->suffix('%'),
-                                ]),
+                                TextInput::make('description')
+                                    ->required()
+                                    ->maxLength(255),
+                                TextInput::make('quantity')
+                                    ->required()
+                                    ->numeric()
+                                    ->minValue(1)
+                                    ->default(1),
+                                TextInput::make('unit_price')
+                                    ->required()
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->prefix('RM'),
+                                TextInput::make('tax_rate')
+                                    ->required()
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->maxValue(100)
+                                    ->default(0)
+                                    ->suffix('%'),
                             ]),
                     ]),
 
