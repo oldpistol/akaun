@@ -7,6 +7,7 @@ namespace App\Filament\Resources\Quotations\Schemas;
 use App\Enums\QuotationStatus;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -89,6 +90,20 @@ class QuotationForm
                             ->relationship('items')
                             ->reorderable(false)
                             ->label('')
+                            ->table([
+                                TableColumn::make('Description')
+                                    ->markAsRequired(),
+                                TableColumn::make('Quantity')
+                                    ->markAsRequired()
+                                    ->width('120px'),
+                                TableColumn::make('Unit Price')
+                                    ->markAsRequired()
+                                    ->width('140px'),
+                                TableColumn::make('Tax Rate')
+                                    ->markAsRequired()
+                                    ->width('120px'),
+                            ])
+                            ->compact()
                             ->schema([
                                 TextInput::make('description')
                                     ->required()

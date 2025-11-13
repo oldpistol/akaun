@@ -8,6 +8,7 @@ use App\Enums\CustomerType;
 use App\Enums\RiskLevel;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -59,6 +60,27 @@ class CustomerForm
                             ->reorderable(false)
                             ->minItems(1)
                             ->label('')
+                            ->table([
+                                TableColumn::make('Label')
+                                    ->width('100px'),
+                                TableColumn::make('Address Line 1')
+                                    ->markAsRequired(),
+                                TableColumn::make('Address Line 2'),
+                                TableColumn::make('City')
+                                    ->markAsRequired()
+                                    ->width('120px'),
+                                TableColumn::make('Postcode')
+                                    ->markAsRequired()
+                                    ->width('100px'),
+                                TableColumn::make('State')
+                                    ->markAsRequired()
+                                    ->width('120px'),
+                                TableColumn::make('Country')
+                                    ->width('90px'),
+                                TableColumn::make('Primary')
+                                    ->width('80px'),
+                            ])
+                            ->compact()
                             ->schema([
                                 TextInput::make('label')
                                     ->maxLength(50)
