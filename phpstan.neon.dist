@@ -15,19 +15,20 @@ parameters:
         - tests/Pest.php
         - tests/Feature/Infrastructure/Customer/Repositories/EloquentCustomerRepositoryTest.php
         - tests/Feature/Infrastructure/State/Repositories/EloquentStateRepositoryTest.php
+        - tests/Feature/Infrastructure/Quotation/Repositories/EloquentQuotationRepositoryTest.php
 
     ignoreErrors:
         # Mockery mocking issues in tests
-        - '#Parameter \#1 \$(customerRepository|stateRepository) of class .* constructor expects .*, Mockery\\MockInterface given#'
-        - '#Call to an undefined method Mockery\\ExpectationInterface\|Mockery\\HigherOrderMessage::(once|with|andReturn|andReturnUsing)\(\)#'
-        - '#Cannot call method (once|with|andReturn|andReturnUsing|andThrow|format)\(\) on mixed#'
+        - '#Parameter \#\d+ \$(customerRepository|stateRepository|quotationRepository|invoiceRepository) of class .* constructor expects .*, Mockery\\MockInterface given#'
+        - '#Call to an undefined method Mockery\\ExpectationInterface\|Mockery\\HigherOrderMessage::(once|twice|with|andReturn|andReturnUsing)\(\)#'
+        - '#Cannot call method (once|twice|with|andReturn|andReturnUsing|andThrow|format)\(\) on mixed#'
         # Nullable timestamp handling in mapper tests
         - '#Cannot call method format\(\) on Carbon\\Carbon\|null#'
         - '#Cannot call method format\(\) on DateTimeImmutable\|null#'
         # Mapper test null handling
         - '#Parameter \#1 \$model of method .* expects .*, .*\|null given#'
         # Filament dynamic typing
-        - '#Cannot access property \$(status|uuid|id|invoice_number|items|notes|value) on (Illuminate\\Database\\Eloquent\\Model|mixed)(\|int\|string\|null)?#'
+        - '#Cannot access property \$(status|uuid|id|invoice_number|quotation_number|items|notes|value|deleted_at) on (Illuminate\\Database\\Eloquent\\Model|mixed|.*QuotationModel\|null|.*InvoiceModel\|null)(\|int\|string\|null)?#'
         - '#Cannot call method (update|orderBy|where|items|load)\(\) on (Illuminate\\Database\\Eloquent\\Model|mixed)(\|int\|string\|null)?#'
         - '#Parameter .* of method .* expects .*, mixed given#'
         - '#Part \$record->.* \(mixed\) of encapsed string cannot be cast to string#'
@@ -39,4 +40,6 @@ parameters:
         # Generic traits
         - '#Class .* uses generic trait .* but does not specify its types#'
         # Test nullable models after database queries
-        - '#Cannot (call method|access property) .* on .*(InvoiceModel|PaymentMethod).*\|null#'
+        - '#Cannot (call method|access property) .* on .*(InvoiceModel|PaymentMethod|QuotationModel|Quotation).*\|null#'
+        # Test parameter type issues with nullable IDs
+        - '#Parameter \#1 \$quotationId of method Application\\Quotation\\UseCases\\.*::execute\(\) expects int, int\|null given#'

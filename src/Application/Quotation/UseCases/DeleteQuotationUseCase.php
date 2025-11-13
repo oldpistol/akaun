@@ -19,8 +19,6 @@ final readonly class DeleteQuotationUseCase
             throw QuotationNotFoundException::withId($quotationId);
         }
 
-        $quotation->delete();
-
-        return $this->quotationRepository->save($quotation) !== null;
+        return $this->quotationRepository->delete($quotation);
     }
 }
