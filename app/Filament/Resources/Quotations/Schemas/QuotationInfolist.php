@@ -31,7 +31,7 @@ class QuotationInfolist
                     ]),
                 Section::make('Status Details')
                     ->columnSpanFull()
-                    ->visible(fn ($record): bool => in_array($record->status, [QuotationStatus::Accepted, QuotationStatus::Declined, QuotationStatus::Converted]))
+                    ->visible(fn ($record): bool => in_array($record->status->value, [QuotationStatus::Accepted->value, QuotationStatus::Declined->value, QuotationStatus::Converted->value]))
                     ->schema([
                         Grid::make(3)->schema([
                             TextEntry::make('accepted_at')
@@ -49,7 +49,8 @@ class QuotationInfolist
                             TextEntry::make('convertedInvoice.invoice_number')
                                 ->label('Converted Invoice')
                                 ->placeholder('-')
-                                ->url(fn ($record) => $record->convertedInvoice ? route('filament.admin.resources.invoices.view', ['record' => $record->convertedInvoice->id]) : null)
+                                // TODO: Uncomment when Invoice View page is available (PR #19)
+                                // ->url(fn ($record) => $record->convertedInvoice ? route('filament.admin.resources.invoices.view', ['record' => $record->convertedInvoice->id]) : null)
                                 ->visible(fn ($record): bool => $record->status === QuotationStatus::Converted),
                         ]),
                     ]),
@@ -82,12 +83,10 @@ class QuotationInfolist
                                 ->label('Discount'),
                             TextEntry::make('total')->money('myr')->weight('bold'),
                         ]),
-                        Grid::make(4)->schema([
-                            TextEntry::make('discount_rate')
-                                ->suffix('%')
-                                ->label('Discount Rate')
-                                ->visible(fn ($record): bool => $record->discount_rate > 0),
-                        ]),
+                        TextEntry::make('discount_rate')
+                            ->suffix('%')
+                            ->label('Discount Rate')
+                            ->visible(fn ($record): bool => $record->discount_rate > 0),
                     ]),
                 Section::make('Additional Information')
                     ->columnSpanFull()

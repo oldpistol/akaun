@@ -14,6 +14,7 @@ use Livewire\Livewire;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertDatabaseHas;
+use function Pest\Laravel\assertSoftDeleted;
 
 uses(RefreshDatabase::class);
 
@@ -271,9 +272,7 @@ it('soft deletes a quotation via the edit page header action', function () {
         ->callAction('delete')
         ->assertNotified();
 
-    $quotation->refresh();
-    assertDatabaseHas('quotations', ['id' => $quotation->id]);
-    expect($quotation->deleted_at)->not->toBeNull();
+    assertSoftDeleted('quotations', ['id' => $quotation->id]);
 });
 
 it('converts an accepted quotation to an invoice', function () {
@@ -403,7 +402,5 @@ it('can delete quotation from view page', function () {
         ->callAction('delete')
         ->assertNotified();
 
-    $quotation->refresh();
-    assertDatabaseHas('quotations', ['id' => $quotation->id]);
-    expect($quotation->deleted_at)->not->toBeNull();
+    assertSoftDeleted('quotations', ['id' => $quotation->id]);
 });
