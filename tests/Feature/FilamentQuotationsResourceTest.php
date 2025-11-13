@@ -4,6 +4,7 @@ use App\Enums\QuotationStatus;
 use App\Filament\Resources\Quotations\Pages\CreateQuotation;
 use App\Filament\Resources\Quotations\Pages\EditQuotation;
 use App\Filament\Resources\Quotations\Pages\ListQuotations;
+use App\Filament\Resources\Quotations\Pages\ViewQuotation;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -13,6 +14,7 @@ use Livewire\Livewire;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertDatabaseHas;
+use function Pest\Laravel\assertSoftDeleted;
 
 uses(RefreshDatabase::class);
 
@@ -270,9 +272,7 @@ it('soft deletes a quotation via the edit page header action', function () {
         ->callAction('delete')
         ->assertNotified();
 
-    $quotation->refresh();
-    assertDatabaseHas('quotations', ['id' => $quotation->id]);
-    expect($quotation->deleted_at)->not->toBeNull();
+    assertSoftDeleted('quotations', ['id' => $quotation->id]);
 });
 
 it('converts an accepted quotation to an invoice', function () {
@@ -294,4 +294,113 @@ it('converts an accepted quotation to an invoice', function () {
         'id' => $quotation->converted_invoice_id,
         'customer_id' => $quotation->customer_id,
     ]);
+});
+
+it('views a quotation on the view page', function () {
+    $quotation = QuotationModel::factory()->create([
+        'quotation_number' => 'QUO-VIEW-TEST',
+    ]);
+
+    Livewire::test(ViewQuotation::class, ['record' => $quotation->getKey()])
+        ->assertSee('QUO-VIEW-TEST')
+        ->assertSee($quotation->customer->name);
+});
+
+it('views quotation with items on the view page', function () {
+    $quotation = QuotationModel::factory()->create([
+        'quotation_number' => 'QUO-ITEMS-VIEW',
+    ]);
+
+    $quotation->items()->create([
+        'description' => 'Consulting Service',
+        'quantity' => 3,
+        'unit_price' => '500.00',
+        'tax_rate' => '10.00',
+    ]);
+
+    Livewire::test(ViewQuotation::class, ['record' => $quotation->getKey()])
+        ->assertSee('Consulting Service')
+        ->assertSee('3')
+        ->assertSee('500.00');
+});
+
+it('views quotation with discount information', function () {
+    $quotation = QuotationModel::factory()->create([
+        'quotation_number' => 'QUO-DISCOUNT-VIEW',
+        'discount_rate' => '15.00',
+    ]);
+
+    $quotation->recalculateTotals();
+    $quotation->refresh();
+
+    Livewire::test(ViewQuotation::class, ['record' => $quotation->getKey()])
+        ->assertSee('15');
+});
+
+it('can accept quotation from view page', function () {
+    $quotation = QuotationModel::factory()->draft()->create();
+
+    expect($quotation->status)->toBe(QuotationStatus::Draft);
+
+    Livewire::test(ViewQuotation::class, ['record' => $quotation->getKey()])
+        ->callAction('accept')
+        ->assertNotified();
+
+    $quotation->refresh();
+    expect($quotation->status)->toBe(QuotationStatus::Accepted);
+    expect($quotation->accepted_at)->not->toBeNull();
+});
+
+it('can decline quotation from view page', function () {
+    $quotation = QuotationModel::factory()->sent()->create();
+
+    expect($quotation->status)->toBe(QuotationStatus::Sent);
+
+    Livewire::test(ViewQuotation::class, ['record' => $quotation->getKey()])
+        ->callAction('decline')
+        ->assertNotified();
+
+    $quotation->refresh();
+    expect($quotation->status)->toBe(QuotationStatus::Declined);
+    expect($quotation->declined_at)->not->toBeNull();
+});
+
+it('hides accept and decline actions when quotation is already accepted', function () {
+    $quotation = QuotationModel::factory()->accepted()->create();
+
+    $component = Livewire::test(ViewQuotation::class, ['record' => $quotation->getKey()]);
+
+    $component->assertActionHidden('accept');
+    $component->assertActionHidden('decline');
+});
+
+it('shows convert to invoice action when quotation is accepted', function () {
+    $quotation = QuotationModel::factory()->accepted()->create();
+
+    Livewire::test(ViewQuotation::class, ['record' => $quotation->getKey()])
+        ->assertActionVisible('convert_to_invoice');
+});
+
+it('hides convert to invoice action when quotation is not accepted', function () {
+    $quotation = QuotationModel::factory()->draft()->create();
+
+    Livewire::test(ViewQuotation::class, ['record' => $quotation->getKey()])
+        ->assertActionHidden('convert_to_invoice');
+});
+
+it('can access edit page from view page via header action', function () {
+    $quotation = QuotationModel::factory()->create();
+
+    Livewire::test(ViewQuotation::class, ['record' => $quotation->getKey()])
+        ->assertActionExists('edit');
+});
+
+it('can delete quotation from view page', function () {
+    $quotation = QuotationModel::factory()->create();
+
+    Livewire::test(ViewQuotation::class, ['record' => $quotation->getKey()])
+        ->callAction('delete')
+        ->assertNotified();
+
+    assertSoftDeleted('quotations', ['id' => $quotation->id]);
 });
