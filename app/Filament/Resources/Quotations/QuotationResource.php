@@ -5,7 +5,9 @@ namespace App\Filament\Resources\Quotations;
 use App\Filament\Resources\Quotations\Pages\CreateQuotation;
 use App\Filament\Resources\Quotations\Pages\EditQuotation;
 use App\Filament\Resources\Quotations\Pages\ListQuotations;
+use App\Filament\Resources\Quotations\Pages\ViewQuotation;
 use App\Filament\Resources\Quotations\Schemas\QuotationForm;
+use App\Filament\Resources\Quotations\Schemas\QuotationInfolist;
 use App\Filament\Resources\Quotations\Tables\QuotationsTable;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -25,6 +27,11 @@ class QuotationResource extends Resource
         return QuotationForm::configure($schema);
     }
 
+    public static function infolist(Schema $schema): Schema
+    {
+        return QuotationInfolist::configure($schema);
+    }
+
     public static function table(Table $table): Table
     {
         return QuotationsTable::configure($table);
@@ -42,6 +49,7 @@ class QuotationResource extends Resource
         return [
             'index' => ListQuotations::route('/'),
             'create' => CreateQuotation::route('/create'),
+            'view' => ViewQuotation::route('/{record}'),
             'edit' => EditQuotation::route('/{record}/edit'),
         ];
     }
