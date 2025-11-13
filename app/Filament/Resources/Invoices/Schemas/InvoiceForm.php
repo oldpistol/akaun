@@ -48,13 +48,6 @@ class InvoiceForm
                             DateTimePicker::make('due_at')
                                 ->required()
                                 ->default(now()->addDays(30)),
-                        ]),
-                    ]),
-
-                Section::make('Payment Details')
-                    ->columnSpan(2)
-                    ->schema([
-                        Grid::make(2)->schema([
                             DateTimePicker::make('paid_at')
                                 ->label('Payment Date')
                                 ->visible(fn (callable $get): bool => $get('status') === InvoiceStatus::Paid->value)
