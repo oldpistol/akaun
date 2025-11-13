@@ -10,6 +10,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Storage;
 
 class InvoiceInfolist
 {
@@ -41,7 +42,7 @@ class InvoiceInfolist
                                 ->label('Payment Receipt')
                                 ->placeholder('-')
                                 ->formatStateUsing(fn ($state) => $state ? 'View Receipt' : '-')
-                                ->url(fn ($record) => $record->payment_receipt_path ? asset('storage/'.$record->payment_receipt_path) : null, shouldOpenInNewTab: true),
+                                ->url(fn ($record) => $record->payment_receipt_path ? Storage::disk('private')->url($record->payment_receipt_path) : null, shouldOpenInNewTab: true),
                         ]),
                     ]),
                 Section::make('Invoice Items')

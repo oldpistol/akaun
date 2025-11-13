@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Invoices\Pages;
 
 use App\Enums\InvoiceStatus;
@@ -68,8 +70,6 @@ class ViewInvoice extends ViewRecord
                         'payment_reference' => $data['payment_reference'] ?? null,
                         'payment_receipt_path' => $data['payment_receipt_path'] ?? null,
                     ]);
-
-                    $this->redirect(static::getUrl(['record' => $this->record]));
                 })
                 ->successNotificationTitle('Invoice marked as paid'),
             Action::make('download_pdf')
