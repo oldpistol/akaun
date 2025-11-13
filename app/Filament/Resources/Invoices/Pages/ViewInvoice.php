@@ -1,16 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Invoices\Pages;
 
 use App\Enums\InvoiceStatus;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Resources\Pages\EditRecord;
+use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Components\Grid;
 use Filament\Support\Icons\Heroicon;
 use Infrastructure\Invoice\Persistence\Eloquent\InvoiceModel;
@@ -18,23 +21,14 @@ use Infrastructure\Invoice\Persistence\Eloquent\InvoiceModel;
 /**
  * @property InvoiceModel $record
  */
-class EditInvoice extends EditRecord
+class ViewInvoice extends ViewRecord
 {
     protected static string $resource = InvoiceResource::class;
-
-    protected function handleRecordUpdate(\Illuminate\Database\Eloquent\Model $record, array $data): \Illuminate\Database\Eloquent\Model
-    {
-        $record->update($data);
-
-        // Recalculate invoice totals based on items
-        $record->recalculateTotals();
-
-        return $record;
-    }
 
     protected function getHeaderActions(): array
     {
         return [
+            EditAction::make(),
             Action::make('mark_as_paid')
                 ->label('Mark as Paid')
                 ->icon(Heroicon::OutlinedCheckCircle)
@@ -75,14 +69,6 @@ class EditInvoice extends EditRecord
                         'payment_method_id' => $data['payment_method_id'],
                         'payment_reference' => $data['payment_reference'] ?? null,
                         'payment_receipt_path' => $data['payment_receipt_path'] ?? null,
-                    ]);
-
-                    $this->refreshFormData([
-                        'status',
-                        'paid_at',
-                        'payment_method_id',
-                        'payment_reference',
-                        'payment_receipt_path',
                     ]);
                 })
                 ->successNotificationTitle('Invoice marked as paid'),

@@ -4,6 +4,8 @@ use App\Enums\InvoiceStatus;
 use App\Filament\Resources\Invoices\Pages\CreateInvoice;
 use App\Filament\Resources\Invoices\Pages\EditInvoice;
 use App\Filament\Resources\Invoices\Pages\ListInvoices;
+use App\Filament\Resources\Invoices\Pages\ViewInvoice;
+use App\Models\PaymentMethod;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -461,7 +463,7 @@ it('does not require payment details when status is not Paid', function () {
 
 it('allows changing invoice status from Paid to Draft without payment details', function () {
     $customer = CustomerModel::factory()->create();
-    $paymentMethod = \App\Models\PaymentMethod::factory()->create();
+    $paymentMethod = PaymentMethod::factory()->create();
 
     $invoice = InvoiceModel::factory()->paid()->create([
         'customer_id' => $customer->id,
@@ -481,4 +483,94 @@ it('allows changing invoice status from Paid to Draft without payment details', 
 
     $invoice->refresh();
     expect($invoice->status)->toBe(InvoiceStatus::Draft);
+});
+
+it('views an invoice on the view page', function () {
+    $invoice = InvoiceModel::factory()->create([
+        'invoice_number' => 'INV-VIEW-TEST',
+    ]);
+
+    Livewire::test(ViewInvoice::class, ['record' => $invoice->getKey()])
+        ->assertSee('INV-VIEW-TEST')
+        ->assertSee($invoice->customer->name);
+});
+
+it('views invoice with payment details when paid', function () {
+    $paymentMethod = PaymentMethod::factory()->create(['name' => 'Bank Transfer']);
+    $invoice = InvoiceModel::factory()->paid()->create([
+        'invoice_number' => 'INV-PAID-VIEW',
+        'payment_method_id' => $paymentMethod->id,
+        'payment_reference' => 'REF-12345',
+    ]);
+
+    Livewire::test(ViewInvoice::class, ['record' => $invoice->getKey()])
+        ->assertSee('INV-PAID-VIEW')
+        ->assertSee('Bank Transfer')
+        ->assertSee('REF-12345');
+});
+
+it('views invoice with items on the view page', function () {
+    $invoice = InvoiceModel::factory()->create([
+        'invoice_number' => 'INV-ITEMS-VIEW',
+    ]);
+
+    $invoice->items()->create([
+        'description' => 'Web Development Service',
+        'quantity' => 5,
+        'unit_price' => '200.00',
+        'tax_rate' => '10.00',
+    ]);
+
+    Livewire::test(ViewInvoice::class, ['record' => $invoice->getKey()])
+        ->assertSee('Web Development Service')
+        ->assertSee('5')
+        ->assertSee('200.00');
+});
+
+it('can mark invoice as paid from view page', function () {
+    $paymentMethod = PaymentMethod::factory()->create();
+    $invoice = InvoiceModel::factory()->draft()->create();
+
+    expect($invoice->status)->toBe(InvoiceStatus::Draft);
+
+    Livewire::test(ViewInvoice::class, ['record' => $invoice->getKey()])
+        ->callAction('mark_as_paid', data: [
+            'paid_at' => now()->toDateTimeString(),
+            'payment_method_id' => $paymentMethod->id,
+            'payment_reference' => 'TEST-REF',
+        ])
+        ->assertNotified();
+
+    $invoice->refresh();
+    expect($invoice->status)->toBe(InvoiceStatus::Paid);
+    expect($invoice->payment_method_id)->toBe($paymentMethod->id);
+    expect($invoice->payment_reference)->toBe('TEST-REF');
+});
+
+it('hides mark as paid action when invoice is already paid', function () {
+    $invoice = InvoiceModel::factory()->paid()->create();
+
+    $component = Livewire::test(ViewInvoice::class, ['record' => $invoice->getKey()]);
+
+    // The action should exist but be hidden for paid invoices
+    $component->assertActionHidden('mark_as_paid');
+});
+
+it('can access edit page from view page via header action', function () {
+    $invoice = InvoiceModel::factory()->create();
+
+    Livewire::test(ViewInvoice::class, ['record' => $invoice->getKey()])
+        ->assertActionExists('edit');
+});
+
+it('can delete invoice from view page', function () {
+    $invoice = InvoiceModel::factory()->create();
+
+    Livewire::test(ViewInvoice::class, ['record' => $invoice->getKey()])
+        ->callAction('delete')
+        ->assertNotified();
+
+    $invoice->refresh();
+    assertDatabaseHas('invoices', ['id' => $invoice->id]);
+    expect($invoice->deleted_at)->not->toBeNull();
 });
