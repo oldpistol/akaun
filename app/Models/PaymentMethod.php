@@ -26,4 +26,9 @@ class PaymentMethod extends Model
             'sort_order' => 'integer',
         ];
     }
+
+    public function setCodeAttribute(string $value): void
+    {
+        $this->attributes['code'] = strtoupper($value);
+    }
 }

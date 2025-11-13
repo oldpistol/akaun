@@ -16,20 +16,12 @@ class PaymentMethodFactory extends Factory
      */
     public function definition(): array
     {
-        $methods = [
-            ['name' => 'Bank Transfer', 'code' => 'bank_transfer'],
-            ['name' => 'Cash', 'code' => 'cash'],
-            ['name' => 'Credit Card', 'code' => 'credit_card'],
-            ['name' => 'Debit Card', 'code' => 'debit_card'],
-            ['name' => 'Cheque', 'code' => 'cheque'],
-            ['name' => 'E-Wallet', 'code' => 'e_wallet'],
-        ];
-
-        $method = fake()->randomElement($methods);
+        $name = fake()->unique()->words(2, true);
+        $code = strtoupper(str_replace(' ', '_', $name));
 
         return [
-            'name' => $method['name'],
-            'code' => $method['code'],
+            'name' => ucwords($name),
+            'code' => $code,
             'description' => fake()->optional()->sentence(),
             'is_active' => true,
             'sort_order' => fake()->numberBetween(1, 100),
